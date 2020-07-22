@@ -20,19 +20,51 @@
 #define	LED_KEY5	RB4//RA3
 #define	LED_KEY6	RB5//RD0
 #define	LED_KEY7	RB6//RD3
-//#define	LED_KEY8	RD6
-//#define	LED_KEY9	RA1
-//#define	LED_KEY10	RD1
-//#define	LED_KEY11	RD4
-//#define	LED_KEY12	RD7
+
+#define TASK_NUM   (4)                  //  这里定义的任务数为3，表示有三个任务会使用此定时器定时。
+typedef  unsigned char uint8;
+typedef  unsigned int  uint16;
+uint16 TaskCount[TASK_NUM] ;           //  这里为三个任务定义三个变量来存放定时值
+uint8  TaskMark[TASK_NUM];             //  同样对应三个标志位，为0表示时间没到，为1表示定时时间到。
 
 //#define	DEBUG
 
+struct _TASK_COMPONENTS
+{
+    uint8 Run;                  // 程序运行标记：0-不运行，1运行
+    uint8 Timer;                // 计时器
+    uint8 ItvTime;              // 任务运行间隔时间
+    void (*TaskHook)(void);    // 要运行的任务函数
+} TASK_COMPONENTS;             // 任务定义
+
+typedef enum _TASK_LIST
+{
+    TAST_DISP_CLOCK,           // 显示时钟
+    TAST_KEY_SAN,             // 按键扫描
+    TASK_RECE_IR,             // 接收IR
+    TASK_TELEC_WS,            // 同控制主板通讯
+    TASKS_MAX                                           // 总的可供分配的定时任务数目
+} TASK_LIST;
+
 volatile unsigned char MainTime;
 volatile bit	B_MainLoop;
+
 void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);
+void TaskLEDDisplay(void);
+void TaskKeySan(void);
+void TaskReceiveIR(void);
+void TaskTelecStatus(void);
+void TaskProcess(void);
+
+static struct _TASK_COMPONENTS TaskComps[] =
+{
+    {0, 60, 60, TaskLEDDisplay},         // 显示时钟
+    {0, 20, 20, TaskKeySan},               // 按键扫描
+    {0, 30, 30, TaskReceiveIR},           // 接收IR
+    {0, 50, 50, TaskTelecStatus}，         // 同主板通讯
+};
 
 /***********************************************************
 	*
@@ -44,12 +76,13 @@ void KeyServer(void);
 ***********************************************************/
 void main()
 {
-#ifdef	DEBUG
-	volatile unsigned char maxtime = 0,maxtime1 = 0;
-#endif
+
 	Init_System();
 	while(1)
 	{
+		
+		TaskProcess();
+		#if 0
 		if(B_MainLoop)
 		{
 			B_MainLoop = 0;
@@ -57,19 +90,89 @@ void main()
 			
 			CheckTouchKey();
 
-#ifdef	DEBUG			
-			maxtime1 = MainTime;
-			if(maxtime1 > maxtime)
-			{
-				maxtime = maxtime1;
-			}
-#endif			
+		
 			
 			KeyServer();
 			Refurbish_Sfr();
 		//	while(!(TKC0&0x40));
 		}
+		#endif 
 	}
+}
+/***********************************************************
+	*
+	*Function Name: void TaskProcess(void)
+	*Function : process
+	*Input Ref:No
+	*Output Ref:No
+	*
+***********************************************************/
+void TaskProcess(void)
+{
+	uint8 i;
+    for (i=0; i<TASKS_MAX; i++)           // 逐个任务时间处理
+    {
+        if(TaskComps[i].Run)           // 时间不为0
+        {
+             TaskComps[i].TaskHook();         // 运行任务
+             TaskComps[i].Run = 0;          // 标志清0
+        }
+    }
+
+}
+/***********************************************************
+	*
+	*Function Name: void TaskDisplayClock(void)
+	*Function : display LED numbers
+	*Input Ref:No
+	*Output Ref:No
+	*
+***********************************************************/
+void TaskLEDDisplay(void)
+{
+
+
+}
+/***********************************************************
+	*
+	*Function Name: void TaskKeySan(void)
+	*Function : Toch key scan 
+	*Input Ref:No
+	*Output Ref:No
+	*
+***********************************************************/
+void TaskKeySan(void)
+{
+	CLRWDT();
+	CheckTouchKey();
+	KeyServer();
+	Refurbish_Sfr();
+}
+/***********************************************************
+	*
+	*Function Name: void TaskReceiveIR(void)
+	*Function : receive IR logic level
+	*Input Ref:No
+	*Output Ref:No
+	*
+***********************************************************/
+void TaskReceiveIR(void)
+{
+
+
+}
+/***********************************************************
+	*
+	*Function Name: void TaskTelecStatus(void)
+	*Function : ommunicate with to mainboard
+	*Input Ref:No
+	*Output Ref:No
+	*
+***********************************************************/
+void TaskTelecStatus(void)
+{
+
+
 }
 /**********************************************************
 	*
@@ -149,8 +252,6 @@ void Refurbish_Sfr()
 	if(4 != T2CON)
 		T2CON = 4;
 }
-
-
 /***********************************************************
  	*
 	*Function Name: keyServer()
@@ -201,14 +302,23 @@ void KeyServer()
 ***********************************************************/
 void interrupt Isr_Timer()
 {
+	uint8 i;
 	if(TMR2IF)				//若只使能了一个中断源,可以略去判断
 	{
 		TMR2IF = 0;
-		if(++MainTime >= 32)
+		for (i=0; i<TASKS_MAX; i++)          // 逐个任务时间处理
 		{
-			MainTime = 0;
-			B_MainLoop = 1;
+	        if (TaskComps[i].Timer)          // 时间不为0
+	        {
+	            TaskComps[i].Timer--;         // 减去一个节拍
+	            if (TaskComps[i].Timer == 0)       // 时间减完了
+	            {
+	                 TaskComps[i].Timer = TaskComps[i].ItvTime;       // 恢复计时器值，从新下一次
+	                 TaskComps[i].Run = 1;           // 任务可以运行
+	            }
+	        }
 		}
+		
 	}
 	else
 	{
