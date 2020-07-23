@@ -11,23 +11,17 @@
             3001085706	陈工
 -------------------------------------------*/
 #include <cms.h>
-#include "Touch_Kscan_Library.h"
+//#include "Touch_Kscan_Library.h"
 #include "LED.h"
+#include "TouchKey.h"
 
 #define		PoutMos		RB7				//定义RC0口 取名Pout
 #define 	Pin0		RA0				//定义RA0口 取名Pin0
 #define 	PoutPwm		RA2				//定义RA2口 取名Pin1
 #define     PoutTele    RD6             //通讯同主控制板	
 
-#define	TIMER_KEY1	RB0//RA4 //TIMER
-#define	UP_KEY2		RB1//RA7
-#define	DOWN_KEY3	RB2//RD2
-#define	RUN_KEY4	RB3//RD5
-#define	SETUP_KEY5	RB4//RA3
-#define	KILL_KEY6	RB5//RD0
-#define	POWER_KEY7	RB6//RD3
-
 #define TASK_NUM   (4)                  //  这里定义的任务数为4，表示有4个任务会使用此定时器定时。
+
 typedef  unsigned char uint8;
 typedef  unsigned int  uint16;
 uint16 TaskCount[TASK_NUM] ;           //  这里为4个任务定义4个变量来存放定时值
@@ -45,7 +39,7 @@ struct _TASK_COMPONENTS
 
 typedef enum _TASK_LIST
 {
-    TAST_DISP_NUMBER,          // 显示时钟
+    TAST_DISP_NUMBER,          // 显示数字
     TAST_KEY_SAN,             // 按键扫描
     TASK_RECE_IR,             // 接收IR
     TASK_TELEC_WS,            // 同控制主板通讯
@@ -53,11 +47,9 @@ typedef enum _TASK_LIST
 } TASK_LIST;
 
  uint8 ptpwm_flag=0;
-volatile bit	B_MainLoop;
 
-void Init_System(void);
-void Refurbish_Sfr(void);
-void KeyServer(void);
+
+
 void TaskLEDDisplay(void);
 void TaskKeySan(void);
 void TaskReceiveIR(void);
@@ -165,131 +157,11 @@ void TaskTelecStatus(void)
 
 
 }
-/**********************************************************
-	*
-	*函数名称：Init_Systim()
-	*函数功能：系统初始化
-	*入口参数：无
-	*出口参数：无 
-	*备    注：每隔一定时间刷新一次SFR可增强抗干扰能力
-	*
-**********************************************************/
-void Init_System()
-{
-	asm("nop");
-	asm("clrwdt");
-	INTCON = 0;				//禁止中断
-	OSCCON = 0X71;			//配置振荡为8M
-	OPTION_REG = 0;
-	
-	//延时等待电源电压稳定
-	//DelayXms(200);
-	TRISA = 0x01;//0x65; WT.EDIT.20200722
-	TRISB = 0xEF; //WT.EDIT.2020.07.22
-	TRISC = 0x00; //WT.EDIT.2020.07.22 add new item
-	TRISD = 0;
-	PORTD = 0;
-	
-	TIMER_KEY1 = 1;
-	UP_KEY2 = 1;
-	DOWN_KEY3 = 1;
-	RUN_KEY4 = 1;
-	SETUP_KEY5 = 1;
-	KILL_KEY6 = 1;
-	POWER_KEY7 = 1;
-
-	
-	PIE2 = 0;
-	PIE1 = 0x02;
-	PR2= 26;//PR2 = 250;	//8M下将TMR2设置为125us中断 定时时间T2 = {1/[(Fosc)*预分频比*后分频比]}*PR2
-	T2CON = 4;				//使能定时器2
-	
-	INTCON = 0XC0;			//使能中断
-}
-
-
-/**********************************************************
-	*
-	*函数名称：Refurbish_Sfr
-	*函数功能：刷新一些特殊功能寄存器
-	*入口参数：无
-	*出口参数：无 
-	*备    注：每隔一定时间刷新一次SFR可增强抗干扰能力
-	*
-**********************************************************/
-void Refurbish_Sfr()
-{
-	//均为数字口
-//	ANSEL = 0;
-//	ANSELH = 0;
-	
-	TRISA = 0x01; // 0;//x65; WTEDIT.20200722
-	TRISB = 0xEF;//0xFF; //WT.EDIT 2020-07-22
-	TRISC = 0;//0xFF;//WT.EDIT 2020-07-22
-	TRISD = 0;
-	
-	SSPCON = 0;
-	EECON1 = 0;
-	
-	OPTION_REG = 0;
-	WDTCON = 9;
-	
-	
-	//刷新中断相关控制寄存器
-	PIE2 = 0;
-	PIE1 = 0x02; //peripheral interrupt enable 1 eable TIMER2 and PIR2 matching interrupt.
-	PR2= 26;//PR2 = 250;//WT.EDIT 38KHZ modulation to carrier,WT.EDIT.2020.07.22 
-	INTCON = 0XC0;
-	if(4 != T2CON)
-		T2CON = 4;
-}
-/***********************************************************
- 	*
-	*Function Name: keyServer()
-	*Function : 按键理函数
-	*Input Ref:No
-	*Output Ref:No
-	*
-***********************************************************/
-void KeyServer()
-{
-	static unsigned int KeyOldFlag = 0;
-	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
-	if(i)
-	{
-		if(i != KeyOldFlag)
-		{
-			KeyOldFlag = i;
-			switch(i)
-			{
-				case 0x1:
-				break;
-				case 0x2:
-				break;
-				case 0x4:
-				break;
-				case 0x8:
-				break;
-				case 0x10:
-				break;
-				case 0x20:
-				break;
-				case 0x40:
-				break;
-
-			}
-		}
-	}
-	else
-	{
-		KeyOldFlag = 0;
-	}
-}
 
 /***********************************************************
 	*
 	*Function Name: interrupt Isr_Timer()
-	*Function : 中断服务函数
+	*Function : 中断服务函数 26us中断
 	*Input Ref:No
 	*Output Ref:No
 	*
@@ -304,7 +176,7 @@ void interrupt Isr_Timer()
 	  ptpwm_flag=ptpwm_flag^0x1;
   	  if(ptpwm_flag==1)
   	  {
-  	  	PoutPwm =1;;
+  	  	PoutPwm =1;
   	  }
   	  else
   	  {

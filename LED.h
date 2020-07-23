@@ -4,12 +4,12 @@
 
 //用户可根据硬件情况修改SEG口电流及个数，修改SEG口和COM口对应点
 /**************************************************
-设置SEG口
+	*设置SEG口
 **************************************************/
 #define		C_COMSEL_COM	0x00		//设置COMSEL，选择COM口个数，范围0x00~0x07，详情请查看芯片手册
 #define     C_LED_SEGCUR    SEGCUR_2MA  //SEG口电流
-#define		SEG_NUMBER		8           //SEG口个数
-#define		COM_NUMBER		4			//COM口个数
+#define		SEG_NUMBER		9//8           //SEG口个数
+#define		COM_NUMBER		6//4			//COM口个数
 #define		FRENQUENCY		Fosc_8192	//频率
 
 volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口不大于8个时，可以只声明char型变量，并修改响应的函数声明参数类型。
@@ -24,13 +24,13 @@ volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口�
 #define		C_LED_SEGF		SEG5  //F段对应MCU的SEG口
 #define		C_LED_SEGG		SEG6  //G段对应MCU的SEG口
 #define		C_LED_SEGP		SEG7  //DP段对应MCU的SEG口
-#define		C_LED_SEGH		SEG8  //
-#define		C_LED_SEGI		SEG9  //
+#define		C_LED_SEGH		SEG8  //A'段
+#define		C_LED_SEGI		SEG9  //E'段
 #define		C_LED_SEGJ		SEG10 //
 
 
 /**************************************************
-设置COM口
+	*设置COM口
 **************************************************/
 //各个位对应的芯片驱动COM口（根据COM口个数设置前n个值）
 #define		C_LED_COM0		COM0  //COM0对应MCU的COM口--对应LED 运行显示的“十”位
