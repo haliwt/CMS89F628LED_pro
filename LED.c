@@ -12,11 +12,14 @@
 void LEDDisplay_Data(void)
 {
 	asm("clrwdt");
-			
+	//运行显示,2位9段		
 	DispData[0] = SMG_0;		//COM0显示0
 	DispData[1] = SMG_1;		//COM1显示1
+	//定时显示，4位7段
 	DispData[2] = SMG_2;		//COM2显示2
 	DispData[3] = SMG_3;		//COM3显示3
+	DispData[4] = SMG_4;        //COM4显示4
+	DispData[5] = SMG_5;        //COM5显示5
 	//...
 	
 	Led_Moudle_Device();		//将数据写入LEDDATA
@@ -34,14 +37,12 @@ void LEDDisplay_Data(void)
 void Set_LED_Moudle()
 {
 	LEDCON0 = (0x40 | FRENQUENCY);//使能LED,禁止LCD,设置频率
-	LEDCON0 |= ((C_COMSEL_COM & 0x03) << 4);
-	COMEN = C_LED_COM;
-	SEGEN0 = C_LED_SEG0;
-	SEGEN1 = C_LED_SEG1;
-	SEGEN2 = C_LED_SEGCUR;
+	LEDCON0 |= ((C_COMSEL_COM & 0x03) << 4); //选择COM口数量，6个
+	COMEN =  C_LED_COM;   //LED驱动COM口设置-使用COM设置成1，GPIO 口设置 = 0
+	SEGEN0 = C_LED_SEG0; //0--对应SEGx GPIO (x=0~7) , 1--对应SEGx是LED/LCD SEG口(x=0~7)
+	SEGEN1 = C_LED_SEG1; //0--对应SEGx GPIO (x=8~15) , 1--对应SEGx是LED/LCD SEG口(x=8~15)
+	SEGEN2 = C_LED_SEGCUR; //LED/LCD驱动电流寄存器配置
 }
-
-
 /**********************************************************
     *
 	*函数名称：Led_Moudle_Device

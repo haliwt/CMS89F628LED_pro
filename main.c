@@ -45,8 +45,6 @@ typedef enum _TASK_LIST
 
  uint8 ptpwm_flag=0;
 
-
-
 void TaskLEDDisplay(void);
 void TaskKeySan(void);
 void TaskReceiveIR(void);
