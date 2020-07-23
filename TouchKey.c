@@ -1,6 +1,20 @@
 #include <cms.h>
 #include "TouchKey.h"
 
+/*----------------------------------------------------------------------------
+	* 
+	*Function Name: void Delay(uint16 ms)
+	*Function: delay times value
+	*Input Ref:NO
+	*Output Ref:NO
+	*                                                 
+----------------------------------------------------------------------------*/
+void Delay(uint16 ms)
+{
+  for(;ms>0;ms--)
+    asm("nop");
+}
+
 /**********************************************************
 	*
 	*函数名称：Init_Systim()
@@ -25,15 +39,14 @@ void Init_System()
 	TRISC = 0x00; //WT.EDIT.2020.07.22 add new item
 	TRISD = 0;
 	PORTD = 0;
-	
-	TIMER_KEY1 = 1;
-	UP_KEY2 = 1;
-	DOWN_KEY3 = 1;
-	RUN_KEY4 = 1;
-	SETUP_KEY5 = 1;
-	KILL_KEY6 = 1;
-	POWER_KEY7 = 1;
 
+	LED_KEY1 = 1; //TIMER
+	LED_KEY2 = 1; //UP
+	LED_KEY3 = 1; //DOWN
+	LED_KEY4 = 1; //RUN
+	LED_KEY5 = 1; //SETUP
+	LED_KEY6 = 1; //KILL
+	LED_KEY7 = 1; //POWER
 	
 	PIE2 = 0;
 	PIE1 = 0x02;
@@ -90,6 +103,8 @@ void Refurbish_Sfr()
 void KeyServer()
 {
 	static unsigned int KeyOldFlag = 0;
+	static uint8 tkflag=0,timflg =0,runflg=0,sterflg=0;
+	uint8 subutton=0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
 	if(i)
 	{
@@ -98,19 +113,68 @@ void KeyServer()
 			KeyOldFlag = i;
 			switch(i)
 			{
-				case 0x1:
+				case 0x1: //定时
+					timflg = timflg ^ 0x01;
+					if(timflg==1) Telec.timerq=1;
+					else Telec.timerq=0;
+
 				break;
-				case 0x2:
+
+				case 0x2: //向上调节
+				     if(subutton==0)subutton=1;
+				     if(subutton==1){
+				     	  Telec.setWind_levels++;
+				     	if(Telec.setWind_levels >=6)
+				   	      Telec.setWind_levels =5;
+				     	 subutton = 2;
+				     }
+				   
 				break;
-				case 0x4:
+
+				case 0x4: //向下调节
+				 	if(subutton==0)subutton=1;
+				     if(subutton==1){
+				     	  Telec.setWind_levels--;
+				       if(Telec.setWind_levels <=0)
+				   	      Telec.setWind_levels =1;
+				     	 subutton = 2;
+				     }
 				break;
-				case 0x8:
+
+				case 0x8: //runs
+				    runflg = runflg ^ 0x01;
+					if(runflg==1) Telec.runstart=1;
+					else Telec.runstart=0;
+
 				break;
-				case 0x10:
+
+				case 0x10: //set Timer value
+				     if(subutton==0)subutton=1;
+				     if(subutton ==1){
+						Telec.setTimerValue = Telec.setTimerValue +10;
+				     	if(Telec.setTimerValue >=240)
+				     	   Telec.setTimerValue=0;
+				     	subutton = 2;
+				     }
 				break;
-				case 0x20:
+
+				case 0x20: //KILL
+					 sterflg = sterflg ^ 0x01;
+					if(sterflg==1) Telec.sterilize=1;
+					else Telec.sterilize=0;
+
 				break;
+
 				case 0x40:
+				  tkflag = tkflag ^ 0x01;
+				  if(tkflag ==1){
+				  	 PoutMos =1; //开启按键背光,通知主控制板，开启电源
+				  	 Telec.power_state =1;
+				  }
+				  else{
+				  	PoutMos =0;
+				  	Telec.power_state =0;
+				  }
 				break;
 
 			}

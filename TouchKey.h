@@ -1,15 +1,40 @@
 #ifndef __TOUCHKEY_H__
 #define __TOUCHKEY_H__
 
-#define	TIMER_KEY1	RB0//RA4 //TIMER
-#define	UP_KEY2		RB1//RA7
-#define	DOWN_KEY3	RB2//RD2
-#define	RUN_KEY4	RB3//RD5
-#define	SETUP_KEY5	RB4//RA3
-#define	KILL_KEY6	RB5//RD0
-#define	POWER_KEY7	RB6//RD3
+typedef unsigned char uint8;
+typedef unsigned int uint16;
+typedef char int8;
 
+#define		PoutMos		RB7				//定义RC0口 取名Pout
+#define 	Pin0		RA0				//定义RA0口 取名Pin0
+#define 	PoutPwm		RA2				//定义RA2口 取名Pin1
+#define     PoutTele    RD6             //通讯同主控制板	单总线通讯
 
+#define	LED_KEY1	RB0//RA4  TIMER
+#define	LED_KEY2	RB1//RA7  UP
+#define	LED_KEY3	RB2//RD2  DOWM
+#define	LED_KEY4	RB3//RD5  RUN
+#define	LED_KEY5	RB4//RA3  SETUP
+#define	LED_KEY6	RB5//RD0  KILL
+#define	LED_KEY7	RB6//RD3  POWER
+//#define	LED_KEY8	//RD6
+//#define	LED_KEY9	//RA1
+//#define	LED_KEY10	//RD1
+//#define	LED_KEY11	//RD4
+//#define	LED_KEY12	//RD7
+//通讯参数
+struct _TELEC_
+{
+	uint8 timerq :1;
+	int8 setWind_levels : 3 ; //设置风扇的级别，共5级
+	uint8 runstart:1;
+	uint8 sterilize : 1;  //杀菌
+	uint8 power_state :1; //开启电源
+	uint8 setTimerValue ;     //设置定时时间的值
+	
+}Telec;
+
+void Delay(uint16 ms);
 void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);

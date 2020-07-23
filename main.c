@@ -15,15 +15,12 @@
 #include "LED.h"
 #include "TouchKey.h"
 
-#define		PoutMos		RB7				//定义RC0口 取名Pout
-#define 	Pin0		RA0				//定义RA0口 取名Pin0
-#define 	PoutPwm		RA2				//定义RA2口 取名Pin1
-#define     PoutTele    RD6             //通讯同主控制板	
+
 
 #define TASK_NUM   (4)                  //  这里定义的任务数为4，表示有4个任务会使用此定时器定时。
 
-typedef  unsigned char uint8;
-typedef  unsigned int  uint16;
+//typedef  unsigned char uint8;
+//typedef  unsigned int  uint16;
 uint16 TaskCount[TASK_NUM] ;           //  这里为4个任务定义4个变量来存放定时值
 uint8  TaskMark[TASK_NUM];             //  同样对应4个标志位，为0表示时间没到，为1表示定时时间到。
 
@@ -154,7 +151,7 @@ void TaskReceiveIR(void)
 ***********************************************************/
 void TaskTelecStatus(void)
 {
-
+     
 
 }
 
