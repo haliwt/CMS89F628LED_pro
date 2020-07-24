@@ -3,7 +3,7 @@
 
 typedef unsigned char uint8;
 typedef unsigned int uint16;
-typedef char int8;
+typedef int int16_t;
 
 #define		PoutMos		RB7				//定义RC0口 取名Pout
 #define 	Pin0		RA0				//定义RA0口 取名Pin0
@@ -25,8 +25,11 @@ typedef char int8;
 //通讯参数
 struct _TELEC_
 {
+	
 	uint8 timerq :1;          //定时器通知信号
-	int8 setWind_levels : 3 ; //设置风扇的级别，共5级
+    int16_t  showtimes;         //显示时间，数据，按键输入
+    uint8 getTimerHour;        //定时器通知信号
+	uint8 setWind_levels : 3 ; //设置风扇的级别，共5级
 	uint8 runstart:1;
 	uint8 sterilize : 1;  //杀菌
 	uint8 power_state :1; //开启电源

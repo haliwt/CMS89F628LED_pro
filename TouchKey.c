@@ -115,8 +115,17 @@ void KeyServer()
 			{
 				case 0x1: //定时
 					timflg = timflg ^ 0x01;
-					if(timflg==1) Telec.timerq=1;
-					else Telec.timerq=0;
+					 if(timflg==1){
+                         Telec.timerq=1;
+                         Telec.showtimes= 10+Telec.showtimes;//每次增加 10分钟
+                       //  LEDDisplay_TimerTtim();
+                    }
+					else{
+                         Telec.timerq=1; //第二次按定时按键，是减少
+                         Telec.showtimes= Telec.showtimes -10;//每次减少 10分钟
+                         if(Telec.showtimes <=0)Telec.showtimes=0;
+                        // LEDDisplay_TimerTtim();
+                    }
 
 				break;
 
