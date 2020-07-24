@@ -162,16 +162,25 @@ void Set_Addr_Value(unsigned char Addr, unsigned int Mask)
 **********************************************************/
 void LEDDisplay_TimerTim(void)
 {
-	#if 0	
-	//定时显示，4位7段
-	DispData[2] = seg[2];//SMG_2;		//COM2显示2
-	DispData[3] = seg[3];//SMG_3;		//COM3显示3
-	DispData[4] = seg[4];//SMG_4;       //COM4显示4
-	DispData[5] = seg[5]; //SMG_5;      //COM5显示5
-	//...
-	
-	Led_Moudle_Device();		//将数据写入LEDDATA
-	#endif 
+	 //定时显示，4位7段
+    if(Telec.showtimes<=60 && Telec.getTimerHour < 1){
+        if(Telec.showtimes ==60)Telec.getTimerHour++;
+       	DispData[5] = seg[Telec.showtimes %10];//SMG_2;		//COM2显示2
+       	DispData[4] = seg[Telec.showtimes /10];//SMG_3;		//COM3显示3
+       	DispData[3] = seg[0];//SMG_4;       //COM4显示4
+       	DispData[2] = seg[0]; //SMG_5;      //COM2显示2---显示最高位时间，定时最大时间24小时
+
+    }
+    else if(Telec.getTimerHour >=1){
+        if(Telec.showtimes ==60)Telec.getTimerHour++;
+        DispData[5] = seg[Telec.showtimes %10];//SMG_2;		//COM2显示2
+        DispData[4] = seg[Telec.showtimes /10];//SMG_3;		//COM3显示3
+        DispData[3] = seg[Telec.getTimerHour % 10];//SMG_4;       //COM4显示4
+        DispData[2] = seg[Telec.getTimerHour / 10]; //SMG_5;      //COM2显示2---显示最高位时间，定时最大时间24小时
+        if(Telec.getTimerHour >24)Telec.getTimerHour =0;  //最大定时时间是 24小时
+    }
+
+   	Led_Moudle_Device();		//将数据写入LEDDATA
 
 }
 
