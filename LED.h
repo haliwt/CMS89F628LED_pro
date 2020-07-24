@@ -12,7 +12,7 @@
 #define		COM_NUMBER		6//4		//COM口个数
 #define		FRENQUENCY		Fosc_8192	//频率
 
-volatile uint16 DispData[COM_NUMBER];//显示数组，当使用的SEG口不大于8个时，可以只声明char型变量，并修改响应的函数声明参数类型。
+volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口不大于8个时，可以只声明char型变量，并修改响应的函数声明参数类型。
 
 //各个段对应的芯片驱动SEG口（根据SEG口个数设置前n个值）
 //LED 显示对应芯片的SEG口，根据原理图设置
@@ -70,8 +70,8 @@ volatile uint16 DispData[COM_NUMBER];//显示数组，当使用的SEG口不大�
 #define		C_LED_SEGH		SEG10  //D'段
 
 
-extern volatile uint16 getMinute;
-extern volatile uint16 getHour;
+extern volatile unsigned int getMinute;
+extern volatile unsigned int  getHour;
 
 /***************************************************/
 /***************************************************/
@@ -163,7 +163,7 @@ LED模块常量定义,请勿修改
 #define     SMG_A1          0x09    //
 #define     SMG_D1          0x0A     //
 
-const uint8 seg[]={
+const unsigned char seg[]={
          SMG_0,         // char "0"  0x00
          SMG_1,         // char "1"  0x01
          SMG_2,         // char "2"  0x02

@@ -162,6 +162,7 @@ void Set_Addr_Value(unsigned char Addr, unsigned int Mask)
 **********************************************************/
 void LEDDisplay_TimerTim(void)
 {
+	#if 0	
 	//定时显示，4位7段
 	DispData[2] = seg[2];//SMG_2;		//COM2显示2
 	DispData[3] = seg[3];//SMG_3;		//COM3显示3
@@ -170,6 +171,7 @@ void LEDDisplay_TimerTim(void)
 	//...
 	
 	Led_Moudle_Device();		//将数据写入LEDDATA
+	#endif 
 
 }
 

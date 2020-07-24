@@ -1,5 +1,6 @@
 #ifndef __TOUCHKEY_H__
 #define __TOUCHKEY_H__
+#include "LED.h"
 
 typedef unsigned char uint8;
 typedef unsigned int uint16;
