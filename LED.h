@@ -177,6 +177,7 @@ const uint8 seg[]={
         
 };
 
+void LEDDisplay_TimerTim(void);
 void LEDDisplay_Data(void);
 void Set_LED_Moudle();
 void Led_Moudle_Device();

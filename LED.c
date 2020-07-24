@@ -19,7 +19,7 @@ void LEDDisplay_Data(void)
 			 	getHour++;
 			 	DispData[1] = seg[getHour % 10]; //SMG_0;		//COM0显示0
 	            DispData[0] = seg[getHour /10];//SMG_1;		//COM1显示1
-	                                           //打开时间小时，小数点LED灯
+	            PoutPwm=0;                                 //打开时间小时，小数点LED灯
 	            if(DispData[1] !=1 || DispData[1] !=4 || DispData[1]!=7){
 
 	            		DispData[1]=SMG_A1 ;
@@ -33,22 +33,15 @@ void LEDDisplay_Data(void)
 	            if(DispData[1]==7)DispData[1]=SMG_A1 ;
 	            if(DispData[0]==7)DispData[0]=SMG_A1 ;
 	            getMinute =0;
-	            if(getHour ==99) getHour =0;
+	            if(getHour ==100) getHour =0;
 	}
 	else if(getHour < 1){
+		PoutPwm=1;  
 		DispData[1] = seg[getMinute % 10];   //低位置
         DispData[0] = seg[getMinute/10];     //高位置
     }
 		
 		
-	
-	//定时显示，4位7段
-	DispData[2] = seg[2];//SMG_2;		//COM2显示2
-	DispData[3] = seg[3];//SMG_3;		//COM3显示3
-	DispData[4] = seg[4];//SMG_4;       //COM4显示4
-	DispData[5] = seg[5]; //SMG_5;      //COM5显示5
-	//...
-	
 	Led_Moudle_Device();		//将数据写入LEDDATA
 
 }
@@ -158,5 +151,25 @@ void Set_Addr_Value(unsigned char Addr, unsigned int Mask)
 		BSET(data, C_LED_COM6);	
 	#endif
 	LEDDATA = data;
+}
+/**********************************************************
+ * 	*
+	*函数名称：void LEDDisplay_TimerTim(void)
+	*函数功能：定时时间显示
+	*入口参数：NO
+	*出口参数：NO
+	*
+**********************************************************/
+void LEDDisplay_TimerTim(void)
+{
+	//定时显示，4位7段
+	DispData[2] = seg[2];//SMG_2;		//COM2显示2
+	DispData[3] = seg[3];//SMG_3;		//COM3显示3
+	DispData[4] = seg[4];//SMG_4;       //COM4显示4
+	DispData[5] = seg[5]; //SMG_5;      //COM5显示5
+	//...
+	
+	Led_Moudle_Device();		//将数据写入LEDDATA
+
 }
 
