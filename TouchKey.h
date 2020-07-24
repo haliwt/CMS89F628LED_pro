@@ -25,7 +25,7 @@ typedef char int8;
 //通讯参数
 struct _TELEC_
 {
-	uint8 timerq :1;
+	uint8 timerq :1;          //定时器通知信号
 	int8 setWind_levels : 3 ; //设置风扇的级别，共5级
 	uint8 runstart:1;
 	uint8 sterilize : 1;  //杀菌
@@ -34,7 +34,7 @@ struct _TELEC_
 	
 }Telec;
 
-void Delay(uint16 ms);
+void Delay_1us(uint16 ms);
 void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);
@@ -114,11 +114,6 @@ const unsigned char WaterModeSel = 1;
 #else
 const unsigned char WaterModeSel = 0;
 #endif
-
-
-
-
-
 
 
 

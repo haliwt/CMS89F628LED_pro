@@ -34,7 +34,7 @@ volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口�
 	*设置COM口
 **************************************************/
 //各个位对应的芯片驱动COM口（根据COM口个数设置前n个值）
-#define		C_LED_COM0		COM0  //COM0对应MCU的COM口--对应LED 运行显示的“十”位
+#define		C_LED_COM0		COM0  //COM0对应MCU的COM口--对应LED 运行显示的“十”位 位选地址
 #define		C_LED_COM1		COM1  //COM1对应MCU的COM口--对应LED 运行显示的“个”位
 #define		C_LED_COM2		COM2  //COM2对应MCU的COM口--对应定时 LED 显示“十”位
 #define		C_LED_COM3		COM3  //COM3对应MCU的COM口--对应定时 LED 显示“个”位
@@ -45,9 +45,20 @@ volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口�
 
 /**************************************************
 	*XinTong LED Display Data Data:2020.07.23
+
+	    //                a
+        //            ---------
+        //           |         |
+        //         f |         | b
+        //           |    g    |
+        //            ---------
+        //           |         |
+        //         e |         | c
+        //           |    d    |
+        //            ---------   O <- h
 **************************************************/
 
-#define		C_LED_SEGA		SEG1   //A段对应MCU的SEG口
+#define		C_LED_SEGA		SEG1   //A段对应MCU的SEG口，段选地址       
 #define		C_LED_SEGB		SEG3   //B段对应MCU的SEG口
 #define		C_LED_SEGC		SEG4   //C段对应MCU的SEG口
 #define		C_LED_SEGD		SEG5   //D段对应MCU的SEG口
@@ -55,7 +66,7 @@ volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口�
 #define		C_LED_SEGF		SEG7   //F段对应MCU的SEG口
 #define		C_LED_SEGG		SEG8   //G段对应MCU的SEG口
 //运行显示模式
-#define		C_LED_SEGP		SEG9   //A'段对应MCU的SEG口
+#define		C_LED_SEGP		SEG9   //A'段对应MCU的SEG口，段选位置
 #define		C_LED_SEGH		SEG10  //D'段
 
 /***************************************************/
@@ -113,6 +124,7 @@ LED模块常量定义,请勿修改
 #define		Fosc_65536		0x0a
 #define		Fosc_131072		0x0b
 /**************************************************
+	*使能段选，和位选 I/O 选择 和GPIO选择
 **************************************************/
 #define     C_LED_COM       ((1<<C_LED_COM0)|(1<<C_LED_COM1)|(1<<C_LED_COM2)|(1<<C_LED_COM3)\
                             |(1<<C_LED_COM4)|(1<<C_LED_COM5)|(1<<C_LED_COM6))
@@ -143,6 +155,9 @@ LED模块常量定义,请勿修改
 #define		SMG_D			0x5E	// D		
 #define		SMG_E			0x79	// E		
 #define		SMG_F			0x71	// F
+
+#define     SMG_A1          0x09    //
+#define     SMG_D1          0x0A     //
 
 
 void LEDDisplay_Data(void);

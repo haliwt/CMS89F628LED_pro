@@ -149,7 +149,42 @@ void TaskReceiveIR(void)
 ***********************************************************/
 void TaskTelecStatus(void)
 {
-     
+    uint8 i, value;       // 待检查数据
+    uint8  parity = 0;  //初始标记
+   
+    Telec.setWind_levels |=Telec.setWind_levels <<5;
+    Telec.sterilize  |=Telec.sterilize<<4;
+    Telec.power_state |= Telec.power_state<<3;
+    Telec.runstart  |=Telec.runstart<<2;
+
+    value =Telec.setWind_levels | Telec.sterilize |Telec.power_state|Telec.runstart;
+    while (value)
+    {
+      parity = !parity;
+      value = value & (value - 1);
+    }
+    if(parity ==1){
+    	value =value | 0x01;
+    }
+    
+   PoutTele = 0; //开始传输指令
+   Delay_1us(100);
+   PoutTele = 1;
+   Delay_1us(100);
+   PoutTele = 0;
+   Delay_1us(100);
+    for(i=0;i<8;i++){
+    	value = value & 0x80;
+    	PoutTele=value;
+    	value <<= 1;	/* 左移一个bit */
+		Delay_1us(10);
+   }
+   PoutTele = 1; //结束传输指令
+   Delay_1us(100);
+   PoutTele = 0;
+   Delay_1us(100);
+   PoutTele = 1;
+   Delay_1us(100);
 
 }
 

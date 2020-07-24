@@ -4,12 +4,12 @@
 /*----------------------------------------------------------------------------
 	* 
 	*Function Name: void Delay(uint16 ms)
-	*Function: delay times value
+	*Function: delay times 1us ,1/8 *4 = 0.5us double instruct 
 	*Input Ref:NO
 	*Output Ref:NO
 	*                                                 
 ----------------------------------------------------------------------------*/
-void Delay(uint16 ms)
+void Delay_1us(uint16 ms)
 {
   for(;ms>0;ms--)
     asm("nop");
@@ -126,7 +126,7 @@ void KeyServer()
 				     	  Telec.setWind_levels++;
 				     	if(Telec.setWind_levels >=6)
 				   	      Telec.setWind_levels =5;
-				     	 subutton = 2;
+				     	  subutton = 2;
 				     }
 				   
 				break;
