@@ -14,10 +14,10 @@
 //#include "Touch_Kscan_Library.h"
 #include "LED.h"
 #include "TouchKey.h"
-
-
-
 #define TASK_NUM   (4)                  //  这里定义的任务数为4，表示有4个任务会使用此定时器定时。
+
+ volatile uint16 getMinute;
+ volatile uint16 getHour;
 
 //typedef  unsigned char uint8;
 //typedef  unsigned int  uint16;
@@ -198,11 +198,12 @@ void TaskTelecStatus(void)
 ***********************************************************/
 void interrupt Isr_Timer()
 {
+	static uint16 seconds=0,minutes=0;
 	uint8 i;
 	if(TMR2IF)				//若只使能了一个中断源,可以略去判断
 	{
 		TMR2IF = 0;
-
+	  seconds++;
 	  ptpwm_flag=ptpwm_flag^0x1;
   	  if(ptpwm_flag==1)
   	  {
@@ -212,8 +213,9 @@ void interrupt Isr_Timer()
   	  {
   	  	PoutPwm =0 ;
   	  }
-		for (i=0; i<TASKS_MAX; i++)          // 逐个任务时间处理
-		{
+	  
+	  for (i=0; i<TASKS_MAX; i++)          // 逐个任务时间处理
+	  {
 	        if (TaskComps[i].Timer)          // 时间不为0
 	        {
 	            TaskComps[i].Timer--;         // 减去一个节拍
@@ -223,6 +225,16 @@ void interrupt Isr_Timer()
 	                 TaskComps[i].Run = 1;           // 任务可以运行
 	            }
 	        }
+		}
+
+		if(seconds==65535){ //计时：1.7s
+			seconds =0;
+		    minutes ++;
+		   if(minutes ==35){
+				minutes =0;
+			    getMinute++; //一分钟时间
+		    }
+			
 		}
 		
 	}

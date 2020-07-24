@@ -12,14 +12,41 @@
 void LEDDisplay_Data(void)
 {
 	asm("clrwdt");
-	//运行显示,2位9段		
-	DispData[0] = SMG_0;		//COM0显示0
-	DispData[1] = SMG_1;		//COM1显示1
+	
+	//运行显示,2位9段	
+	
+	if(getMinute ==60 ){
+			 	getHour++;
+			 	DispData[1] = seg[getHour % 10]; //SMG_0;		//COM0显示0
+	            DispData[0] = seg[getHour /10];//SMG_1;		//COM1显示1
+	                                           //打开时间小时，小数点LED灯
+	            if(DispData[1] !=1 || DispData[1] !=4 || DispData[1]!=7){
+
+	            		DispData[1]=SMG_A1 ;
+	            		DispData[1]=SMG_D1 ;
+	            }
+	             if(DispData[0] !=1 || DispData[0] !=4 || DispData[0]!=7){
+
+	            		DispData[0]=SMG_A1 ;
+	            		DispData[0]=SMG_D1 ;
+	            }
+	            if(DispData[1]==7)DispData[1]=SMG_A1 ;
+	            if(DispData[0]==7)DispData[0]=SMG_A1 ;
+	            getMinute =0;
+	            if(getHour ==99) getHour =0;
+	}
+	else if(getHour < 1){
+		DispData[1] = seg[getMinute % 10];   //低位置
+        DispData[0] = seg[getMinute/10];     //高位置
+    }
+		
+		
+	
 	//定时显示，4位7段
-	DispData[2] = SMG_2;		//COM2显示2
-	DispData[3] = SMG_3;		//COM3显示3
-	DispData[4] = SMG_4;        //COM4显示4
-	DispData[5] = SMG_5;        //COM5显示5
+	DispData[2] = seg[2];//SMG_2;		//COM2显示2
+	DispData[3] = seg[3];//SMG_3;		//COM3显示3
+	DispData[4] = seg[4];//SMG_4;       //COM4显示4
+	DispData[5] = seg[5]; //SMG_5;      //COM5显示5
 	//...
 	
 	Led_Moudle_Device();		//将数据写入LEDDATA
@@ -39,8 +66,8 @@ void Set_LED_Moudle()
 	LEDCON0 = (0x40 | FRENQUENCY);//使能LED,禁止LCD,设置频率
 	LEDCON0 |= ((C_COMSEL_COM & 0x03) << 4); //选择COM口数量，6个
 	COMEN =  C_LED_COM;   //LED驱动COM口设置-使用COM设置成1，GPIO 口设置 = 0
-	SEGEN0 = C_LED_SEG0; //0--对应SEGx GPIO (x=0~7) , 1--对应SEGx是LED/LCD SEG口(x=0~7)
-	SEGEN1 = C_LED_SEG1; //0--对应SEGx GPIO (x=8~15) , 1--对应SEGx是LED/LCD SEG口(x=8~15)
+	SEGEN0 = C_LED_SEG0; //0--对应普通 GPIO (x=0~7) , 1--对应SEGx是LED/LCD SEG口(x=0~7)
+	SEGEN1 = C_LED_SEG1; //0--对应普通 GPIO (x=8~15) , 1--对应SEGx是LED/LCD SEG口(x=8~15)
 	SEGEN2 = C_LED_SEGCUR; //LED/LCD驱动电流寄存器配置
 }
 /**********************************************************
