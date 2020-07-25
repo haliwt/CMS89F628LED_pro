@@ -1,46 +1,46 @@
 /*-------------------------------------------
 
-³ÌĞòÃû³Æ£ºCMS89FT628¿ò¼ÜÊ¾Àı³ÌĞò
-ÈÕÆÚ°æ±¾£º2018/6/15 <V1.1>
+ç¨‹åºåç§°ï¼šCMS89FT628æ¡†æ¶ç¤ºä¾‹ç¨‹åº
+æ—¥æœŸç‰ˆæœ¬ï¼š2018/6/15 <V1.1>
 
-±¸×¢£º
+å¤‡æ³¨ï¼š
 
-*±¾³ÌĞòÓÉ ÖĞÎ¢°ëµ¼ÌåÓĞÏŞ¹«Ë¾ &Ó¦ÓÃÖ§³Ö²¿& ±àĞ´ÕûÀí
-*¹«Ë¾ÍøÖ· www.mcu.com.cn
-*¼¼ÊõÖ§³ÖQQ 3001082102  ÂŞ¹¤
-            3001085706	³Â¹¤
+*æœ¬ç¨‹åºç”± ä¸­å¾®åŠå¯¼ä½“æœ‰é™å…¬å¸ &åº”ç”¨æ”¯æŒéƒ¨& ç¼–å†™æ•´ç†
+*å…¬å¸ç½‘å€ www.mcu.com.cn
+*æŠ€æœ¯æ”¯æŒQQ 3001082102  ç½—å·¥
+            3001085706	é™ˆå·¥
 -------------------------------------------*/
 #include <cms.h>
 //#include "Touch_Kscan_Library.h"
 #include "LED.h"
 #include "TouchKey.h"
-#define TASK_NUM   (4)                  //  ÕâÀï¶¨ÒåµÄÈÎÎñÊıÎª4£¬±íÊ¾ÓĞ4¸öÈÎÎñ»áÊ¹ÓÃ´Ë¶¨Ê±Æ÷¶¨Ê±¡£
+#define TASK_NUM   (4)                  //  è¿™é‡Œå®šä¹‰çš„ä»»åŠ¡æ•°ä¸º4ï¼Œè¡¨ç¤ºæœ‰4ä¸ªä»»åŠ¡ä¼šä½¿ç”¨æ­¤å®šæ—¶å™¨å®šæ—¶ã€‚
 
  volatile uint16 getMinute;
  volatile uint16 getHour;
 
 //typedef  unsigned char uint8;
 //typedef  unsigned int  uint16;
-uint16 TaskCount[TASK_NUM] ;           //  ÕâÀïÎª4¸öÈÎÎñ¶¨Òå4¸ö±äÁ¿À´´æ·Å¶¨Ê±Öµ
-uint8  TaskMark[TASK_NUM];             //  Í¬Ñù¶ÔÓ¦4¸ö±êÖ¾Î»£¬Îª0±íÊ¾Ê±¼äÃ»µ½£¬Îª1±íÊ¾¶¨Ê±Ê±¼äµ½¡£
+uint16 TaskCount[TASK_NUM] ;           //  è¿™é‡Œä¸º4ä¸ªä»»åŠ¡å®šä¹‰4ä¸ªå˜é‡æ¥å­˜æ”¾å®šæ—¶å€¼
+uint8  TaskMark[TASK_NUM];             //  åŒæ ·å¯¹åº”4ä¸ªæ ‡å¿—ä½ï¼Œä¸º0è¡¨ç¤ºæ—¶é—´æ²¡åˆ°ï¼Œä¸º1è¡¨ç¤ºå®šæ—¶æ—¶é—´åˆ°ã€‚
 
 //#define	DEBUG
 
 struct _TASK_COMPONENTS
 {
-    uint8 Run;                  // ³ÌĞòÔËĞĞ±ê¼Ç£º0-²»ÔËĞĞ£¬1ÔËĞĞ
-    uint16 Timer;                // ¼ÆÊ±Æ÷
-    uint16 ItvTime;              // ÈÎÎñÔËĞĞ¼ä¸ôÊ±¼ä
-    void (*TaskHook)(void);    // ÒªÔËĞĞµÄÈÎÎñº¯Êı
-} TASK_COMPONENTS;             // ÈÎÎñ¶¨Òå
+    uint8 Run;                  // ç¨‹åºè¿è¡Œæ ‡è®°ï¼š0-ä¸è¿è¡Œï¼Œ1è¿è¡Œ
+    uint16 Timer;                // è®¡æ—¶å™¨
+    uint16 ItervalTime;              // ä»»åŠ¡è¿è¡Œé—´éš”æ—¶é—´
+    void (*TaskHook)(void);    // è¦è¿è¡Œçš„ä»»åŠ¡å‡½æ•°
+} TASK_COMPONENTS;             // ä»»åŠ¡å®šä¹‰
 
 typedef enum _TASK_LIST
 {
-    TAST_DISP_NUMBER,          // ÏÔÊ¾Êı×Ö
-    TAST_KEY_SAN,             // °´¼üÉ¨Ãè
-    TASK_RECE_IR,             // ½ÓÊÕIR
-    TASK_TELEC_WS,            // Í¬¿ØÖÆÖ÷°åÍ¨Ñ¶
-    TASKS_MAX                 // ×ÜµÄ¿É¹©·ÖÅäµÄ¶¨Ê±ÈÎÎñÊıÄ¿
+    TAST_DISP_NUMBER,          // æ˜¾ç¤ºæ•°å­—
+    TAST_KEY_SAN,             // æŒ‰é”®æ‰«æ
+    TASK_RECE_IR,             // æ¥æ”¶IR
+    TASK_TELEC_WS,            // åŒæ§åˆ¶ä¸»æ¿é€šè®¯
+    TASKS_MAX                 // æ€»çš„å¯ä¾›åˆ†é…çš„å®šæ—¶ä»»åŠ¡æ•°ç›®
 } TASK_LIST;
 
  uint8 ptpwm_flag=0;
@@ -53,10 +53,10 @@ void TaskProcess(void);
 
 static struct _TASK_COMPONENTS TaskComps[] =
 {
-    {0, 769, 769, TaskLEDDisplay},           // ÏÔÊ¾Êı×Ö 20ms = 125us * 160£¬É¨ÃèÒ»´Î
-    {0, 154, 154, TaskKeySan},               // °´¼üÉ¨Ãè 4ms=125us * 32 É¨ÃèÒ»´Î
-    {0, 308, 308, TaskReceiveIR},            // ½ÓÊÕIR   8ms = 125us * 64 
-    {0, 384, 384, TaskTelecStatus}£¬         // Í¬Ö÷°åÍ¨Ñ¶ 10ms = 125us * 80   
+    {0, 769, 769, TaskLEDDisplay},           // æ˜¾ç¤ºæ•°å­— 20ms = 26us * 769ï¼Œæ‰«æä¸€æ¬¡
+    {0, 154, 154, TaskKeySan},               // æŒ‰é”®æ‰«æ 4ms=26us * 154 æ‰«æä¸€æ¬¡
+    {0, 308, 308, TaskReceiveIR},            // æ¥æ”¶IR   8ms = 26us * 308 æ‰§è¡Œä¸€æ¬¡
+    {0, 384, 384, TaskTelecStatus}        // åŒä¸»æ¿é€šè®¯ 10ms = 26us * 80  æ‰§è¡Œä¸€æ¬¡ 
 };
 
 /***********************************************************
@@ -88,12 +88,12 @@ void main()
 void TaskProcess(void)
 {
 	uint8 i;
-    for (i=0; i<TASKS_MAX; i++)           // Öğ¸öÈÎÎñÊ±¼ä´¦Àí
+    for (i=0; i<TASKS_MAX; i++)           // é€ä¸ªä»»åŠ¡è½®è¯¢æ—¶é—´å¤„ç†
     {
-        if(TaskComps[i].Run)           // Ê±¼ä²»Îª0
+        if(TaskComps[i].Run)           // æ—¶é—´ä¸ä¸º0
         {
-             TaskComps[i].TaskHook();         // ÔËĞĞÈÎÎñ
-             TaskComps[i].Run = 0;          // ±êÖ¾Çå0
+             TaskComps[i].TaskHook();         // è¿è¡Œä»»åŠ¡
+             TaskComps[i].Run = 0;          // æ ‡å¿—æ¸…0
         }
     }
 
@@ -139,18 +139,18 @@ void TaskReceiveIR(void)
 
 
 }
-/***********************************************************
+/***********************************************************************************************
 	*
 	*Function Name: void TaskTelecStatus(void)
-	*Function : ommunicate with to mainboard
+	*Function : ommunicate serial baud rate =9600bps
 	*Input Ref:No
 	*Output Ref:No
 	*
-***********************************************************/
+*************************************************************************************************/
 void TaskTelecStatus(void)
 {
-    uint8 i, value;       // ´ı¼ì²éÊı¾İ
-    uint8  parity = 0;  //³õÊ¼±ê¼Ç
+    uint8 i, value;       // å¾…æ£€æŸ¥æ•°æ®
+    uint8  parity = 0;  //åˆå§‹æ ‡è®°
    
     Telec.setWind_levels |=Telec.setWind_levels <<5;
     Telec.sterilize  |=Telec.sterilize<<4;
@@ -166,22 +166,22 @@ void TaskTelecStatus(void)
     if(parity ==1){
     	value =value | 0x01;
     }
-    Telec.get_4_microsecond = 0; //¶¨Ê±Æ÷¼ÆÊ±Öµ£¬ÇåÁã¡£
+    Telec.get_4_microsecond = 0; //å®šæ—¶å™¨è®¡æ—¶å€¼ï¼Œæ¸…é›¶ã€‚
     USART_SendData(value);
 }
-/***********************************************************
+/*************************************************************************************
 	*
 	*Function Name: interrupt Isr_Timer()
-	*Function : ÖĞ¶Ï·şÎñº¯Êı 26usÖĞ¶Ï
+	*Function : ä¸­æ–­æœåŠ¡å‡½æ•° 26usä¸­æ–­
 	*Input Ref:No
 	*Output Ref:No
 	*
-***********************************************************/
+*****************************************************************************************/
 void interrupt Isr_Timer()
 {
 	static uint16 seconds=0,minutes=0;
 	uint8 i;
-	if(TMR2IF)				//ÈôÖ»Ê¹ÄÜÁËÒ»¸öÖĞ¶ÏÔ´,¿ÉÒÔÂÔÈ¥ÅĞ¶Ï
+	if(TMR2IF)				//è‹¥åªä½¿èƒ½äº†ä¸€ä¸ªä¸­æ–­æº,å¯ä»¥ç•¥å»åˆ¤æ–­
 	{
 	  TMR2IF = 0;
 	  seconds++;
@@ -196,25 +196,25 @@ void interrupt Isr_Timer()
   	  	PortPwm =0 ;
   	  }
 	  
-	  for (i=0; i<TASKS_MAX; i++)          // Öğ¸öÈÎÎñÊ±¼ä´¦Àí
+	  for (i=0; i<TASKS_MAX; i++)          // é€ä¸ªä»»åŠ¡è½®è¯¢æ—¶é—´å¤„ç†
 	  {
-	        if (TaskComps[i].Timer)          // Ê±¼ä²»Îª0
+	        if (TaskComps[i].Timer)          // æ—¶é—´ä¸ä¸º0
 	        {
-	            TaskComps[i].Timer--;         // ¼õÈ¥Ò»¸ö½ÚÅÄ
-	            if (TaskComps[i].Timer == 0)       // Ê±¼ä¼õÍêÁË
+	            TaskComps[i].Timer--;         // å‡å»ä¸€ä¸ªèŠ‚æ‹
+	            if (TaskComps[i].Timer == 0)       // æ—¶é—´å‡å®Œäº†
 	            {
-	                 TaskComps[i].Timer = TaskComps[i].ItvTime;       // »Ö¸´¼ÆÊ±Æ÷Öµ£¬´ÓĞÂÏÂÒ»´Î
-	                 TaskComps[i].Run = 1;           // ÈÎÎñ¿ÉÒÔÔËĞĞ
+	                 TaskComps[i].Timer = TaskComps[i].ItervalTime;       // æ¢å¤è®¡æ—¶å™¨å€¼ï¼Œä»æ–°ä¸‹ä¸€æ¬¡
+	                 TaskComps[i].Run = 1;           // ä»»åŠ¡å¯ä»¥è¿è¡Œ
 	            }
 	        }
 		}
 
-		if(seconds==65535){ //¼ÆÊ±£º1.7s
+		if(seconds==65535){ //è®¡æ—¶ï¼š1.7s
 			seconds =0;
 		    minutes ++;
-		   if(minutes ==35){
+		   if(minutes ==35){ //1åˆ†é’Ÿæ—¶é—´
 				minutes =0;
-			    getMinute++; //Ò»·ÖÖÓÊ±¼ä
+			    getMinute++; 
 		    }
 			
 		}
