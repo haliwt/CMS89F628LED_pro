@@ -205,25 +205,28 @@ void KeyServer()
 void USART_SendData(uint8 data)
 {
 	static uint8 interflag;
-	uint8 i;
+	uint8 i,pro=0;
 	PortTx =0;
-	if(Telec.get_4_microsecond==4){ //延时104us
-		Telec.get_4_microsecond=0;
-		interflag ++ ;
-		if(interflag >=1 && interflag <=8){ //发送8个bit数据
-			
-				PortTx =data & 0x01; //发送最低字节
-				data = data >> 1;
-			
-		}
+	while(pro==0){
+		if(Telec.get_4_microsecond==4){ //延时104us
+			Telec.get_4_microsecond=0;
+			interflag ++ ;
+			if(interflag >=1 && interflag <=8){ //发送8个bit数据
+				
+					PortTx =data & 0x01; //发送最低字节
+					data = data >> 1;
+				
+			}
 
-		if(interflag ==9){ //停止位
-			PortTx = 1;
-		}
-		if(interflag ==10){//发送完成
-		   Telec.get_4_microsecond = 0; 
-		   interflag =0;	
-		}
+			if(interflag ==9){ //停止位
+				PortTx = 1;
+			}
+			if(interflag ==10){//发送完成
+			   Telec.get_4_microsecond = 0; 
+			   interflag =0;
+			   pro =1;
+			}
 
+		}
 	}
 }

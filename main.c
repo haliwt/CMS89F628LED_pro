@@ -168,11 +168,7 @@ void TaskTelecStatus(void)
     }
     Telec.get_4_microsecond = 0; //定时器计时值，清零。
     USART_SendData(value);
-    
-  
-
 }
-
 /***********************************************************
 	*
 	*Function Name: interrupt Isr_Timer()
