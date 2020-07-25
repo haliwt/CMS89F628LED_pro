@@ -6,10 +6,10 @@ typedef unsigned char uint8;
 typedef unsigned int uint16;
 typedef int int16_t;
 
-#define		PoutMos		RB7				//定义RC0口 取名Pout
+#define		PortMos		RB7				//定义RC0口 取名Pout
 #define 	Pin0		RA0				//定义RA0口 取名Pin0
-#define 	PoutPwm		RA2				//定义RA2口 取名Pin1
-#define     PoutTele    RD6             //通讯同主控制板	单总线通讯
+#define 	PortPwm		RA2				//定义RA2口 取名Pin1
+#define     PortTx      RD6             //通讯同主控制板	单总线通讯
 
 #define	LED_KEY1	RB0//RA4  TIMER
 #define	LED_KEY2	RB1//RA7  UP
@@ -26,7 +26,7 @@ typedef int int16_t;
 //通讯参数
 struct _TELEC_
 {
-	
+	uint8 get_4_microsecond ;
 	uint8 timerq :1;          //定时器通知信号
     int16_t  showtimes;         //显示时间，数据，按键输入
     uint8 getTimerHour;        //定时器通知信号
@@ -42,6 +42,7 @@ void Delay_1us(uint16 ms);
 void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);
+void USART_SendData(uint8 data);//模拟串口函数
 
 //接口函数声明
 extern void CheckTouchKey(void);	//按键扫描主过程函数,建议在2.5ms~5ms内调用

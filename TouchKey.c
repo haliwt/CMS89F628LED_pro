@@ -124,7 +124,7 @@ void KeyServer()
                          Telec.timerq=1; //第二次按定时按键，是减少
                          Telec.showtimes= Telec.showtimes -10;//每次减少 10分钟
                          if(Telec.showtimes <=0)Telec.showtimes=0;
-                        // LEDDisplay_TimerTtim();
+                         LEDDisplay_TimerTim();
                     }
 
 				break;
@@ -177,11 +177,11 @@ void KeyServer()
 				case 0x40:
 				  tkflag = tkflag ^ 0x01;
 				  if(tkflag ==1){
-				  	 PoutMos =1; //开启按键背光,通知主控制板，开启电源
+				  	 PortMos =1; //开启按键背光,通知主控制板，开启电源
 				  	 Telec.power_state =1;
 				  }
 				  else{
-				  	PoutMos =0;
+				  	PortMos =0;
 				  	Telec.power_state =0;
 				  }
 				break;
@@ -192,5 +192,38 @@ void KeyServer()
 	else
 	{
 		KeyOldFlag = 0;
+	}
+}
+/*************************************************************************
+ 	*
+	*Function Name: USART_SendData(uint8 data)
+	*Function : GPIO口模拟串口，波特率 =9600bps ，间隔发送时间= 1s/9600=104us
+	*Input Ref: data ，需要发送的数据8bit
+	*Output Ref:No
+	*
+******************************************************************************/
+void USART_SendData(uint8 data)
+{
+	static uint8 interflag;
+	uint8 i;
+	PortTx =0;
+	if(Telec.get_4_microsecond==4){ //延时104us
+		Telec.get_4_microsecond=0;
+		interflag ++ ;
+		if(interflag >=1 && interflag <=8){ //发送8个bit数据
+			
+				PortTx =data & 0x01; //发送最低字节
+				data = data >> 1;
+			
+		}
+
+		if(interflag ==9){ //停止位
+			PortTx = 1;
+		}
+		if(interflag ==10){//发送完成
+		   Telec.get_4_microsecond = 0; 
+		   interflag =0;	
+		}
+
 	}
 }

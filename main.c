@@ -56,7 +56,7 @@ static struct _TASK_COMPONENTS TaskComps[] =
     {0, 769, 769, TaskLEDDisplay},           // 显示数字 20ms = 125us * 160，扫描一次
     {0, 154, 154, TaskKeySan},               // 按键扫描 4ms=125us * 32 扫描一次
     {0, 308, 308, TaskReceiveIR},            // 接收IR   8ms = 125us * 64 
-    {0, 384, 384, TaskTelecStatus}，           // 同主板通讯 10ms = 125us * 80   
+    {0, 384, 384, TaskTelecStatus}，         // 同主板通讯 10ms = 125us * 80   
 };
 
 /***********************************************************
@@ -166,25 +166,10 @@ void TaskTelecStatus(void)
     if(parity ==1){
     	value =value | 0x01;
     }
+    Telec.get_4_microsecond = 0; //定时器计时值，清零。
+    USART_SendData(value);
     
-   PoutTele = 0; //开始传输指令
-   Delay_1us(100);
-   PoutTele = 1;
-   Delay_1us(100);
-   PoutTele = 0;
-   Delay_1us(100);
-    for(i=0;i<8;i++){
-    	value = value & 0x80;
-    	PoutTele=value;
-    	value <<= 1;	/* 左移一个bit */
-		Delay_1us(10);
-   }
-   PoutTele = 1; //结束传输指令
-   Delay_1us(100);
-   PoutTele = 0;
-   Delay_1us(100);
-   PoutTele = 1;
-   Delay_1us(100);
+  
 
 }
 
@@ -202,16 +187,17 @@ void interrupt Isr_Timer()
 	uint8 i;
 	if(TMR2IF)				//若只使能了一个中断源,可以略去判断
 	{
-		TMR2IF = 0;
+	  TMR2IF = 0;
 	  seconds++;
+	  Telec.get_4_microsecond++;
 	  ptpwm_flag=ptpwm_flag^0x1;
   	  if(ptpwm_flag==1)
   	  {
-  	  	PoutPwm =1;
+  	  	PortPwm =1;
   	  }
   	  else
   	  {
-  	  	PoutPwm =0 ;
+  	  	PortPwm =0 ;
   	  }
 	  
 	  for (i=0; i<TASKS_MAX; i++)          // 逐个任务时间处理
