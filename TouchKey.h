@@ -41,7 +41,8 @@ void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);
 void USART_SendData(uint8 data[]);//模拟串口函数
-uint8 CRC8(uint8 arr[], uint8 num) ;          //CRC校验
+//uint8 CRC8(uint8 arr[], uint8 num) ;          //CRC校验
+uint8 BCC(uint8 *sbyte,uint8 len);      //BCC校验
 
 //接口函数声明
 extern void CheckTouchKey(void);	//按键扫描主过程函数,建议在2.5ms~5ms内调用

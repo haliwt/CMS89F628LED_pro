@@ -222,9 +222,10 @@ void USART_SendData(uint8 arr[])
 {
 	static uint8 interflag;
 	uint8 i,pro=0;
-    uint8 CRC_data;
-    CRC_data = CRC8(arr, 3);
-	arr[3]=CRC_data;
+    uint8 bcc_data;
+    //CRC_data = CRC8(arr, 3);
+	bcc_data=BCC(arr,3);
+	arr[3]=bcc_data;
 	Telec.get_8_microsecond = 0; //定时器计时值，清零。
 	PortTx =0;
 	while(pro==0){
@@ -264,11 +265,13 @@ void USART_SendData(uint8 arr[])
 }
 /*************************************************************************
  	*
-	*Function Name: void CRC_Init(void)
-    *Input Ref:arr[], be used to send data         
+	*Function Name: uint8 BCC(uint8 *sbyte,uint8 len); 
+    *Input Ref:be used to send data  
+			   len :数据的长度
 	*Return Ref: crc,send data 
 	*
 **************************************************************************/
+#if 0
 uint8 CRC8(uint8 arr[], uint8 num)
 {
    uint8 cacbit ; //bit mask;
@@ -284,11 +287,22 @@ uint8 CRC8(uint8 arr[], uint8 num)
 		  if(crc & 0x80) 
 		  	crc =(crc<<1) ^ POLY;
 		  else
-			crc = (crc <<1);
+			crc = (crc <<1); // 高位零不作比较，直接移位
 		}
    
    }
 
    return crc;
     
+}
+#endif 
+uint8 BCC(uint8 *sbytes,uint8 wid)
+{
+     uint8 i;
+	 uint8 tembyte = 0;
+    for (i = 0; i <wid; i++) {
+        tembyte ^= sbytes[i];
+    }
+    return tembyte;
+
 }
