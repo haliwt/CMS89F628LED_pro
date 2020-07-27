@@ -184,7 +184,7 @@ void interrupt Isr_Timer()
 	{
 	  TMR2IF = 0;
 	  seconds++;
-	  Telec.get_4_microsecond++;
+	  Telec.get_8_microsecond++;
 	  ptpwm_flag=ptpwm_flag^0x1;
   	  if(ptpwm_flag==1)
   	  {

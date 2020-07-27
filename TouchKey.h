@@ -20,7 +20,7 @@ typedef int int16_t;
 #define	LED_KEY6	RB5//RD0  KILL
 #define	LED_KEY7	RB6//RD3  POWER
 
-#define POLY        0x131 //CRC校验多项式16进制码
+#define POLY        0x131 //G(x)= x^8+x^5+x^4+1
 //通讯参数
 struct _TELEC_
 {

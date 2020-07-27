@@ -33,10 +33,16 @@ void Init_System()
 	OPTION_REG = 0;
 	
 	//延时等待电源电压稳定
-	//DelayXms(200);
-	TRISA = 0x01;//0x65; WT.EDIT.20200722
-	TRISB = 0xEF; //WT.EDIT.2020.07.22
+	//LED SEG 驱动选择
+	TRISA = 0x01;//0x65; WT.EDIT.20200722 0x0000 0001 GPIO-A0 --输入
+	PORTA = 0x00;
+
+	TRISB = 0x7F; //WT.EDIT.2020.07.22 0b0111 1111 --GPIO -B7 -触摸按键输入
 	TRISC = 0x00; //WT.EDIT.2020.07.22 add new item
+
+	PORTC = 0x00; //GPIO 口方向输出
+	PORTC = 0x00; //设置GPIO 输出，LED驱动功能
+
 	TRISD = 0;
 	PORTD = 0;
 
@@ -55,8 +61,6 @@ void Init_System()
 	
 	INTCON = 0XC0;			//使能中断
 }
-
-
 /**********************************************************
 	*
 	*函数名称：Refurbish_Sfr
@@ -72,16 +76,18 @@ void Refurbish_Sfr()
 //	ANSEL = 0;
 //	ANSELH = 0;
 	
-	TRISA = 0x01; // 0;//x65; WTEDIT.20200722
-	TRISB = 0xEF;//0xFF; //WT.EDIT 2020-07-22
-	TRISC = 0;//0xFF;//WT.EDIT 2020-07-22
+	//LED SEG 驱动选择
+	TRISA = 0x01;//0x65; WT.EDIT.20200722 0x0000 0001 GPIO-A0 --输入
+	PORTA = 0x00;
+
+	TRISB = 0x7F; //WT.EDIT.2020.07.22 0b0111 1111 --GPIO -B7 -触摸按键输入
+	TRISC = 0x00; //WT.EDIT.2020.07.22 add new item
+
+	PORTC = 0x00; //GPIO 口方向输出
+	PORTC = 0x00; //设置GPIO 输出，LED驱动功能
+
 	TRISD = 0;
-	
-	SSPCON = 0;
-	EECON1 = 0;
-	
-	OPTION_REG = 0;
-	WDTCON = 9;
+	PORTD = 0;
 	
 	
 	//刷新中断相关控制寄存器
@@ -273,7 +279,7 @@ uint8 CRC8(uint8 arr[], uint8 num)
    for(byteCtr =0; byteCtr<num; byteCtr++)
    {
 		crc ^=(arr[byteCtr]);
-		for(cacbit=8;cacbit>0;--cacbit)
+		for(cacbit=8;cacbit>0;--cacbit) //8bit 
 		{
 		  if(crc & 0x80) 
 		  	crc =(crc<<1) ^ POLY;
