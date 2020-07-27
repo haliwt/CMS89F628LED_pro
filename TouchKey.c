@@ -1,6 +1,6 @@
 #include <cms.h>
 #include "TouchKey.h"
-
+unsigned int TimerEvent;
 /*----------------------------------------------------------------------------
 	* 
 	*Function Name: void Delay(uint16 ms)
@@ -50,7 +50,7 @@ void Init_System()
 	
 	PIE2 = 0;
 	PIE1 = 0x02;
-	PR2= 26;//PR2 = 250;	//8M下将TMR2设置为125us中断 定时时间T2 = {1/[(Fosc)*预分频比*后分频比]}*PR2
+	PR2= 13;//PR2 = 250;	//8M下将TMR2设置为125us中断 定时时间T2 = {1/[(Fosc)*预分频比*后分频比]}*PR2
 	T2CON = 4;				//使能定时器2
 	
 	INTCON = 0XC0;			//使能中断
@@ -87,7 +87,7 @@ void Refurbish_Sfr()
 	//刷新中断相关控制寄存器
 	PIE2 = 0;
 	PIE1 = 0x02; //peripheral interrupt enable 1 eable TIMER2 and PIR2 matching interrupt.
-	PR2= 26;//PR2 = 250;//WT.EDIT 38KHZ modulation to carrier,WT.EDIT.2020.07.22 
+	PR2= 13;//T=26us,T=13us HIGH T=13us LOW level//WT.EDIT 38KHZ modulation to carrier,WT.EDIT.2020.07.22 
 	INTCON = 0XC0;
 	if(4 != T2CON)
 		T2CON = 4;
@@ -114,8 +114,9 @@ void KeyServer()
 			switch(i)
 			{
 				case 0x1: //定时
-					timflg = timflg ^ 0x01;
-					 if(timflg==1){
+				    TimerEvent=0;
+					 timflg = timflg ^ 0x01;
+					if(timflg==1){
                          Telec.timerq=1;
                          Telec.showtimes= 10+Telec.showtimes;//每次增加 10分钟
                          LEDDisplay_TimerTim();
@@ -123,7 +124,16 @@ void KeyServer()
 					else{
                          Telec.timerq=1; //第二次按定时按键，是减少
                          Telec.showtimes= Telec.showtimes -10;//每次减少 10分钟
-                         if(Telec.showtimes <=0)Telec.showtimes=0;
+                         if(Telec.showtimes <=0){
+							 if(Telec.getTimerHour>=1){ //jia
+								 Telec.getTimerHour =Telec.getTimerHour -1;
+								 Telec.showtimes=60;
+							 }
+							 else{
+								 Telec.showtimes=0;
+							 }
+
+						 }
                          LEDDisplay_TimerTim();
                     }
 
@@ -198,35 +208,81 @@ void KeyServer()
  	*
 	*Function Name: USART_SendData(uint8 data)
 	*Function : GPIO口模拟串口，波特率 =9600bps ，间隔发送时间= 1s/9600=104us
-	*Input Ref: data ，需要发送的数据8bit
+	*Input Ref: data ，需要发送的数据32bit
 	*Output Ref:No
 	*
-******************************************************************************/
-void USART_SendData(uint8 data)
+**************************************************************************/
+void USART_SendData(uint8 arr[])
 {
 	static uint8 interflag;
 	uint8 i,pro=0;
+    uint8 CRC_data;
+    CRC_data = CRC8(arr, 3);
+	arr[3]=CRC_data;
+	Telec.get_8_microsecond = 0; //定时器计时值，清零。
 	PortTx =0;
 	while(pro==0){
-		if(Telec.get_4_microsecond==4){ //延时104us
-			Telec.get_4_microsecond=0;
+		if(Telec.get_8_microsecond==8){ //延时104us
+			Telec.get_8_microsecond=0;
 			interflag ++ ;
-			if(interflag >=1 && interflag <=8){ //发送8个bit数据
+			if(interflag >=1 && interflag <=32){ //发送4个字节32bit
 				
-					PortTx =data & 0x01; //发送最低字节
-					data = data >> 1;
-				
+				    if(interflag <=8){
+						PortTx =arr[0] & 0x01; //发送最低字节 head code 
+						arr[0] = arr[0] >> 1;
+					}
+					else if(interflag >8 && interflag <=16){
+						PortTx =arr[1] & 0x01; //发送最低字节  wind speed code hight 
+						arr[1] = arr[1] >> 1;
+					}
+					else if(interflag >16 && interflag <= 24){
+						PortTx =arr[2] & 0x01; //发送最低字节  wind speed code hight 
+						arr[1] = arr[2] >> 1;
+					}
+					else if(interflag >24 && interflag <=32){
+						PortTx =arr[3] & 0x01; //发送最低字节   crc value
+						arr[1] = arr[3]>> 1;
+					}
 			}
-
-			if(interflag ==9){ //停止位
+			if(interflag ==33){ //停止位
 				PortTx = 1;
 			}
-			if(interflag ==10){//发送完成
-			   Telec.get_4_microsecond = 0; 
+			if(interflag ==34){//发送完成
+			   Telec.get_8_microsecond = 0; 
 			   interflag =0;
 			   pro =1;
 			}
 
 		}
 	}
+}
+/*************************************************************************
+ 	*
+	*Function Name: void CRC_Init(void)
+    *Input Ref:arr[], be used to send data         
+	*Return Ref: crc,send data 
+	*
+**************************************************************************/
+uint8 CRC8(uint8 arr[], uint8 num)
+{
+   uint8 cacbit ; //bit mask;
+   uint8 crc = 0XFF;  //calculaed checksum
+   uint8 byteCtr ; //byte counter
+   
+   //calculate 8 bit checksum with given polynomial 
+   for(byteCtr =0; byteCtr<num; byteCtr++)
+   {
+		crc ^=(arr[byteCtr]);
+		for(cacbit=8;cacbit>0;--cacbit)
+		{
+		  if(crc & 0x80) 
+		  	crc =(crc<<1) ^ POLY;
+		  else
+			crc = (crc <<1);
+		}
+   
+   }
+
+   return crc;
+    
 }

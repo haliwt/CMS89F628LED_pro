@@ -14,7 +14,7 @@ void LEDDisplay_Data(void)
 	asm("clrwdt");
 	
 	//运行显示,2位9段	
-	
+	TimerEvent=1;
 	if(getMinute ==60 ){
 			 	getHour++;
 			 	DispData[1] = seg[getHour % 10]; //SMG_0;		//COM0显示0
@@ -36,13 +36,16 @@ void LEDDisplay_Data(void)
 	            if(getHour ==100) getHour =0;
 	}
 	else if(getHour < 1){
-		//PortTx=1;  
-		DispData[1] = seg[getMinute % 10];   //低位置
-        DispData[0] = seg[getMinute/10];     //高位置
+		//PortTx=1;   //显示时间，小时的LED
+		DispData[1] = seg[getMinute % 10];   //个位置
+        DispData[0] = seg[getMinute/10];     //十位置
     }
 		
 		
 	Led_Moudle_Device();		//将数据写入LEDDATA
+
+	
+	LEDDisplay_TimerTim();
 
 }
 /**********************************************************
@@ -155,7 +158,7 @@ void Set_Addr_Value(unsigned char Addr, unsigned int Mask)
 /**********************************************************
  * 	*
 	*函数名称：void LEDDisplay_TimerTim(void)
-	*函数功能：定时时间显示
+	*函数功能：定时时间显示,按键设置定时时间
 	*入口参数：NO
 	*出口参数：NO
 	*
@@ -163,19 +166,40 @@ void Set_Addr_Value(unsigned char Addr, unsigned int Mask)
 void LEDDisplay_TimerTim(void)
 {
 	 //定时显示，4位7段
-    if(Telec.showtimes<=60 && Telec.getTimerHour < 1){
-        if(Telec.showtimes ==60){
+	 static uint8 minhour=0;
+    if(Telec.showtimes<=60 && Telec.getTimerHour < 1){//显示分钟时间
+        if(Telec.showtimes ==60 && TimerEvent ==0){  //设置定时时间，按键输入定时时间值
 			Telec.getTimerHour++;
 			Telec.showtimes=0;
 		}
+		if(TimerEvent == 1){ //显示定时时间，每次减一分钟
+			Telec.showtimes  = Telec.showtimes - getMinute;
+			if(Telec.showtimes <=0) {
+				minhour ++;
+				Telec.showtimes=0;
+				getMinute =0;
+			}
+ 
+		}
+
        	DispData[5] = seg[Telec.showtimes %10];//SMG_2;		//COM2显示2
        	DispData[4] = seg[Telec.showtimes /10];//SMG_3;		//COM3显示3
-       	DispData[3] = seg[0];//SMG_4;       //COM4显示4
-       	DispData[2] = seg[0]; //SMG_5;      //COM2显示2---显示最高位时间，定时最大时间24小时
+       	DispData[3] = seg[0];         //小时，个位
+       	DispData[2] = seg[0];       //COM2显示2---显示最高位时间，定时最大时间24小时
 
     }
-    else if(Telec.getTimerHour >=1){
-        if(Telec.showtimes ==60)Telec.getTimerHour++;
+    else if(Telec.getTimerHour >=1){ //显示小时时间，分钟时间
+        if(Telec.showtimes ==60 && TimerEvent==0)Telec.getTimerHour++;
+		if(TimerEvent == 1){
+			if(Telec.getTimerHour !=0){
+				Telec.showtimes  = Telec.showtimes - getMinute;
+				if(Telec.showtimes <=0) {
+					minhour ++;
+					Telec.showtimes=60;
+				}
+				Telec.getTimerHour  = Telec.getTimerHour - minhour;
+			}
+		}
         DispData[5] = seg[Telec.showtimes %10];//SMG_2;		//COM2显示2
         DispData[4] = seg[Telec.showtimes /10];//SMG_3;		//COM3显示3
         DispData[3] = seg[Telec.getTimerHour % 10];//SMG_4;       //COM4显示4

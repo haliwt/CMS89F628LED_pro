@@ -53,10 +53,10 @@ void TaskProcess(void);
 
 static struct _TASK_COMPONENTS TaskComps[] =
 {
-    {0, 769, 769, TaskLEDDisplay},           // 显示数字 20ms = 26us * 769，扫描一次
-    {0, 154, 154, TaskKeySan},               // 按键扫描 4ms=26us * 154 扫描一次
-    {0, 308, 308, TaskReceiveIR},            // 接收IR   8ms = 26us * 308 执行一次
-    {0, 384, 384, TaskTelecStatus}        // 同主板通讯 10ms = 26us * 80  执行一次 
+    {0, 769, 769, TaskLEDDisplay},           // 显示数字 20ms = 13us * 1538，扫描一次
+    {0, 154, 154, TaskKeySan},               // 按键扫描 4ms=13us * 308 扫描一次
+    {0, 308, 308, TaskReceiveIR},            // 接收IR   8ms = 13us * 616 执行一次
+    {0, 384, 384, TaskTelecStatus}           // 同主板通讯 10ms = 13us * 160  执行一次 
 };
 
 /***********************************************************
@@ -136,7 +136,10 @@ void TaskKeySan(void)
 ***********************************************************/
 void TaskReceiveIR(void)
 {
+  if(Pin0==0){//接收到IR信号,就把背光全部打开
 
+		PortMos =1;
+  }
 
 }
 /***********************************************************************************************
@@ -149,30 +152,26 @@ void TaskReceiveIR(void)
 *************************************************************************************************/
 void TaskTelecStatus(void)
 {
-    uint8 i, value;       // 待检查数据
-    uint8  parity = 0;  //初始标记
+    uint8 data[4], value,head=0,windseep1=0,windseep2=0;       // 待检查数据
+    uint8  parity = 0;  //初始标记，偶校验
    
-    Telec.setWind_levels |=Telec.setWind_levels <<5;
-    Telec.sterilize  |=Telec.sterilize<<4;
-    Telec.power_state |= Telec.power_state<<3;
-    Telec.runstart  |=Telec.runstart<<2;
+    Telec.setWind_levels |=Telec.setWind_levels <<0; //风扇5级参数值
+    
+	Telec.power_state |= Telec.power_state << 0;       //电源开关量
+	Telec.sterilize  |=Telec.sterilize<<1;           //杀菌开关量
+    Telec.runstart  |=Telec.runstart<<2;             //电机开启开关量
 
-    value =Telec.setWind_levels | Telec.sterilize |Telec.power_state|Telec.runstart;
-    while (value)
-    {
-      parity = !parity;
-      value = value & (value - 1);
-    }
-    if(parity ==1){
-    	value =value | 0x01;
-    }
-    Telec.get_4_microsecond = 0; //定时器计时值，清零。
-    USART_SendData(value);
+	data[0]=Telec.power_state |Telec.sterilize|Telec.runstart;  //head code 8bit
+	data[1]=0x0; 												//wind speed of code hig code 8bit
+	data[2]=Telec.setWind_levels;								//wind speed of code low code 8 bit
+	
+   
+    USART_SendData(data);
 }
 /*************************************************************************************
 	*
 	*Function Name: interrupt Isr_Timer()
-	*Function : 中断服务函数 26us中断
+	*Function : 中断服务函数 13us中断
 	*Input Ref:No
 	*Output Ref:No
 	*
@@ -209,10 +208,10 @@ void interrupt Isr_Timer()
 	        }
 		}
 
-		if(seconds==65535){ //计时：1.7s
+		if(seconds==65535){ //计时：852ms//1.7s
 			seconds =0;
-		    minutes ++;
-		   if(minutes ==35){ //1分钟时间
+			 minutes ++;
+			if(minutes ==71){ //1分钟时间
 				minutes =0;
 			    getMinute++; 
 		    }

@@ -6,6 +6,7 @@ typedef unsigned char uint8;
 typedef unsigned int uint16;
 typedef int int16_t;
 
+
 #define		PortMos		RB7				//定义RC0口 取名Pout
 #define 	Pin0		RA0				//定义RA0口 取名Pin0
 #define 	PortPwm		RA2				//定义RA2口 取名Pin1
@@ -18,19 +19,16 @@ typedef int int16_t;
 #define	LED_KEY5	RB4//RA3  SETUP
 #define	LED_KEY6	RB5//RD0  KILL
 #define	LED_KEY7	RB6//RD3  POWER
-//#define	LED_KEY8	//RD6
-//#define	LED_KEY9	//RA1
-//#define	LED_KEY10	//RD1
-//#define	LED_KEY11	//RD4
-//#define	LED_KEY12	//RD7
+
+#define POLY        0x131 //CRC校验多项式16进制码
 //通讯参数
 struct _TELEC_
 {
-	uint8 get_4_microsecond ;
+	uint8 get_8_microsecond ;
 	uint8 timerq :1;          //定时器通知信号
     int16_t  showtimes;         //显示时间，数据，按键输入
-    uint8 getTimerHour;        //定时器通知信号
-	uint8 setWind_levels : 3 ; //设置风扇的级别，共5级
+    uint8 getTimerHour;        //定时器时间小时
+	uint8 setWind_levels ; //设置风扇的级别，共5级
 	uint8 runstart:1;
 	uint8 sterilize : 1;  //杀菌
 	uint8 power_state :1; //开启电源
@@ -42,7 +40,8 @@ void Delay_1us(uint16 ms);
 void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);
-void USART_SendData(uint8 data);//模拟串口函数
+void USART_SendData(uint8 data[]);//模拟串口函数
+uint8 CRC8(uint8 arr[], uint8 num) ;          //CRC校验
 
 //接口函数声明
 extern void CheckTouchKey(void);	//按键扫描主过程函数,建议在2.5ms~5ms内调用
@@ -100,6 +99,8 @@ const unsigned char Table_KeyDown[] = {
 	14,				//按键11灵敏度设定值
 	14				//按键12灵敏度设定值
 };
+
+
 /***********************************************************
 下面的内容请勿修改
 ***********************************************************/

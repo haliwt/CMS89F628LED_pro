@@ -72,7 +72,7 @@ volatile unsigned int DispData[COM_NUMBER];//显示数组，当使用的SEG口�
 
 extern volatile unsigned int getMinute;
 extern volatile unsigned int  getHour;
-
+extern unsigned int TimerEvent;
 /***************************************************/
 /***************************************************/
 /***************************************************/
