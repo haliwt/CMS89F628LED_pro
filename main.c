@@ -152,15 +152,15 @@ void TaskTelecStatus(void)
 {
     uint8_t data[4];       // 待检查数据
     
-   Telec.setWind_levels |=Telec.setWind_levels <<0; //风扇5级参数值
+   Telec->setWind_levels |=Telec->setWind_levels <<0; //风扇5级参数值
     
-	Telec.power_state |= Telec.power_state << 0;       //电源开关量
-	Telec.sterilize  |=Telec.sterilize<<1;           //杀菌开关量
-    Telec.runstart  |=Telec.runstart<<2;             //电机开启开关量
+	Telec->power_state |= Telec->power_state << 0;       //电源开关量
+	Telec->sterilize  |=Telec->sterilize<<1;           //杀菌开关量
+    Telec->runstart  |=Telec->runstart<<2;             //电机开启开关量
 
-	data[0]=Telec.power_state |Telec.sterilize|Telec.runstart;  //head code 8bit
+	data[0]=Telec->power_state |Telec->sterilize|Telec->runstart;  //head code 8bit
 	data[1]=0x0; 												//wind speed of code hig code 8bit
-	data[2]=Telec.setWind_levels;								//wind speed of code low code 8 bit
+	data[2]=Telec->setWind_levels;								//wind speed of code low code 8 bit
 	
    
     USART_SendData(data);
@@ -181,7 +181,7 @@ void interrupt Isr_Timer()
 	{
 	  TMR2IF = 0;
 	  seconds++;
-	  Telec.get_8_microsecond++;
+	  Telec->get_8_microsecond++;
 	  ptpwm_flag=ptpwm_flag^0x1;
   	  if(ptpwm_flag==1)
   	  {

@@ -36,7 +36,7 @@ struct _TELEC_
 	uint8_t power_state :1; //开启电源
 	uint8_t setTimerValue ;     //设置定时时间的值
 	
-}Telec;
+}*Telec;
 
 void Delay_1us(uint16_t ms);
 void Init_System(void);

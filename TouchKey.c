@@ -121,17 +121,17 @@ void KeyServer()
 			{
 				case 0x1: //定时
 				    TimerEvent=0;
-					Telec.timerq=1;
-                    Telec.showtimes= 10+Telec.showtimes;//每次增加 10分钟
+					Telec->timerq=1;
+                    Telec->showtimes= 10+Telec->showtimes;//每次增加 10分钟
                     LEDDisplay_TimerTim();
                 break;
 
 				case 0x2: //向上调节
 				     if(subutton==0)subutton=1;
 				     if(subutton==1){
-				     	  Telec.setWind_levels++;
-				     	if(Telec.setWind_levels >=6)
-				   	      Telec.setWind_levels =5;
+				     	  Telec->setWind_levels++;
+				     	if(Telec->setWind_levels >=6)
+				   	      Telec->setWind_levels =5;
 				     	  subutton = 2;
 				     }
 				   
@@ -140,34 +140,34 @@ void KeyServer()
 				case 0x4: //向下调节
 				 	if(subutton==0)subutton=1;
 				     if(subutton==1){
-				     	  Telec.setWind_levels--;
-				       if(Telec.setWind_levels <=0)
-				   	      Telec.setWind_levels =1;
+				     	  Telec->setWind_levels--;
+				       if(Telec->setWind_levels <=0)
+				   	      Telec->setWind_levels =1;
 				     	 subutton = 2;
 				     }
 				break;
 
 				case 0x8: //runs
 				    runflg = runflg ^ 0x01;
-					if(runflg==1) Telec.runstart=1;
-					else Telec.runstart=0;
+					if(runflg==1) Telec->runstart=1;
+					else Telec->runstart=0;
 
 				break;
 
 				case 0x10: //set Timer value
 				     if(subutton==0)subutton=1;
 				     if(subutton ==1){
-						Telec.setTimerValue = Telec.setTimerValue +10;
-				     	if(Telec.setTimerValue >=240)
-				     	   Telec.setTimerValue=0;
+						Telec->setTimerValue = Telec->setTimerValue +10;
+				     	if(Telec->setTimerValue >=240)
+				     	   Telec->setTimerValue=0;
 				     	subutton = 2;
 				     }
 				break;
 
 				case 0x20: //KILL
 					 sterflg = sterflg ^ 0x01;
-					if(sterflg==1) Telec.sterilize=1;
-					else Telec.sterilize=0;
+					if(sterflg==1) Telec->sterilize=1;
+					else Telec->sterilize=0;
 
 				break;
 
@@ -175,11 +175,11 @@ void KeyServer()
 				  tkflag = tkflag ^ 0x01;
 				  if(tkflag ==1){
 				  	 PortMos =1; //开启按键背光,通知主控制板，开启电源
-				  	 Telec.power_state =1;
+				  	 Telec->power_state =1;
 				  }
 				  else{
 				  	PortMos =0;
-				  	Telec.power_state =0;
+				  	Telec->power_state =0;
 				  }
 				break;
 
@@ -207,11 +207,11 @@ void USART_SendData(uint8_t *arr)
     //CRC_data = CRC8(arr, 3);
 	bcc_data=BCC(arr,3);
 	arr[3]=bcc_data;
-	Telec.get_8_microsecond = 0; //定时器计时值，清零。
+	Telec->get_8_microsecond = 0; //定时器计时值，清零。
 	PortTx =0;
 	while(pro==0){
-		if(Telec.get_8_microsecond==8){ //延时104us
-			Telec.get_8_microsecond=0;
+		if(Telec->get_8_microsecond==8){ //延时104us
+			Telec->get_8_microsecond=0;
 			interflag ++ ;
 			if(interflag >=1 && interflag <=32){ //发送4个字节32bit
 				
@@ -236,7 +236,7 @@ void USART_SendData(uint8_t *arr)
 				PortTx = 1;
 			}
 			if(interflag ==34){//发送完成
-			   Telec.get_8_microsecond = 0; 
+			   Telec->get_8_microsecond = 0; 
 			   interflag =0;
 			   pro =1;
 			}
