@@ -166,13 +166,13 @@ void Set_Addr_Value(unsigned char Addr, unsigned int Mask)
 void LEDDisplay_TimerTim(void)
 {
 	 //定时显示，4位7段
-	 static uint8 minhour=0;
+	 static uint8_t minhour=0;
     if(Telec.showtimes<=60 && Telec.getTimerHour < 1){//显示分钟时间
         if(Telec.showtimes ==60 && TimerEvent ==0){  //设置定时时间，按键输入定时时间值
 			Telec.getTimerHour++;
 			Telec.showtimes=0;
 		}
-		if(TimerEvent == 1){ //显示定时时间，每次减一分钟
+		if(TimerEvent == 1){ //显示定时时间，每次减一分钟 ，定时事件=1，定时开始
 			Telec.showtimes  = Telec.showtimes - getMinute;
 			if(Telec.showtimes <=0) {
 				minhour ++;
@@ -190,14 +190,14 @@ void LEDDisplay_TimerTim(void)
     }
     else if(Telec.getTimerHour >=1){ //显示小时时间，分钟时间
         if(Telec.showtimes ==60 && TimerEvent==0)Telec.getTimerHour++;
-		if(TimerEvent == 1){
-			if(Telec.getTimerHour !=0){
+		if(TimerEvent == 1){ //定时事件开始
+			if(Telec.getTimerHour !=0){ //定时时间，大于一个小时
 				Telec.showtimes  = Telec.showtimes - getMinute;
 				if(Telec.showtimes <=0) {
 					minhour ++;
 					Telec.showtimes=60;
 				}
-				Telec.getTimerHour  = Telec.getTimerHour - minhour;
+				Telec.getTimerHour  = Telec.getTimerHour - minhour; //
 			}
 		}
         DispData[5] = seg[Telec.showtimes %10];//SMG_2;		//COM2显示2

@@ -16,21 +16,19 @@
 #include "TouchKey.h"
 #define TASK_NUM   (4)                  //  这里定义的任务数为4，表示有4个任务会使用此定时器定时。
 
- volatile uint16 getMinute;
- volatile uint16 getHour;
+ volatile uint16_t getMinute;
+ volatile uint16_t getHour;
 
-//typedef  unsigned char uint8;
-//typedef  unsigned int  uint16;
-uint16 TaskCount[TASK_NUM] ;           //  这里为4个任务定义4个变量来存放定时值
-uint8  TaskMark[TASK_NUM];             //  同样对应4个标志位，为0表示时间没到，为1表示定时时间到。
+uint16_t TaskCount[TASK_NUM] ;           //  这里为4个任务定义4个变量来存放定时值
+uint8_t  TaskMark[TASK_NUM];             //  同样对应4个标志位，为0表示时间没到，为1表示定时时间到。
 
 //#define	DEBUG
 
 struct _TASK_COMPONENTS
 {
-    uint8 Run;                  // 程序运行标记：0-不运行，1运行
-    uint16 Timer;                // 计时器
-    uint16 ItervalTime;              // 任务运行间隔时间
+    uint8_t Run;                  // 程序运行标记：0-不运行，1运行
+    uint16_t Timer;                // 计时器
+    uint16_t ItervalTime;              // 任务运行间隔时间
     void (*TaskHook)(void);    // 要运行的任务函数
 } TASK_COMPONENTS;             // 任务定义
 
@@ -43,7 +41,7 @@ typedef enum _TASK_LIST
     TASKS_MAX                 // 总的可供分配的定时任务数目
 } TASK_LIST;
 
- uint8 ptpwm_flag=0;
+ uint8_t ptpwm_flag=0;
 
 void TaskLEDDisplay(void);
 void TaskKeySan(void);
@@ -87,7 +85,7 @@ void main()
 ***********************************************************/
 void TaskProcess(void)
 {
-	uint8 i;
+	uint8_t i;
     for (i=0; i<TASKS_MAX; i++)           // 逐个任务轮询时间处理
     {
         if(TaskComps[i].Run)           // 时间不为0
@@ -152,10 +150,9 @@ void TaskReceiveIR(void)
 *************************************************************************************************/
 void TaskTelecStatus(void)
 {
-    uint8 data[4], value,head=0,windseep1=0,windseep2=0;       // 待检查数据
-    uint8  parity = 0;  //初始标记，偶校验
-   
-    Telec.setWind_levels |=Telec.setWind_levels <<0; //风扇5级参数值
+    uint8_t data[4];       // 待检查数据
+    
+   Telec.setWind_levels |=Telec.setWind_levels <<0; //风扇5级参数值
     
 	Telec.power_state |= Telec.power_state << 0;       //电源开关量
 	Telec.sterilize  |=Telec.sterilize<<1;           //杀菌开关量
@@ -178,8 +175,8 @@ void TaskTelecStatus(void)
 *****************************************************************************************/
 void interrupt Isr_Timer()
 {
-	static uint16 seconds=0,minutes=0;
-	uint8 i;
+	static uint16_t seconds=0,minutes=0;
+	uint8_t i;
 	if(TMR2IF)				//若只使能了一个中断源,可以略去判断
 	{
 	  TMR2IF = 0;

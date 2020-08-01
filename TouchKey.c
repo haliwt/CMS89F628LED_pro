@@ -9,7 +9,7 @@ unsigned int TimerEvent;
 	*Output Ref:NO
 	*                                                 
 ----------------------------------------------------------------------------*/
-void Delay_1us(uint16 ms)
+void Delay_1us(uint16_t ms)
 {
   for(;ms>0;ms--)
     asm("nop");
@@ -37,7 +37,7 @@ void Init_System()
 	TRISA = 0x01;//0x65; WT.EDIT.20200722 0x0000 0001 GPIO-A0 --输入
 	PORTA = 0x00;
 
-	TRISB = 0x7F; //WT.EDIT.2020.07.22 0b0111 1111 --GPIO -B7 -触摸按键输入
+	TRISB = 0x7F; //WT.EDIT.2020.07.22 0b0111 1111 --GPIO -B6 -触摸按键输入
 	TRISC = 0x00; //WT.EDIT.2020.07.22 add new item
 
 	PORTC = 0x00; //GPIO 口方向输出
@@ -109,8 +109,8 @@ void Refurbish_Sfr()
 void KeyServer()
 {
 	static unsigned int KeyOldFlag = 0;
-	static uint8 tkflag=0,timflg =0,runflg=0,sterflg=0;
-	uint8 subutton=0;
+	static uint8_t tkflag=0,timflg =0,runflg=0,sterflg=0;
+	uint8_t subutton=0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
 	if(i)
 	{
@@ -121,29 +121,10 @@ void KeyServer()
 			{
 				case 0x1: //定时
 				    TimerEvent=0;
-					 timflg = timflg ^ 0x01;
-					if(timflg==1){
-                         Telec.timerq=1;
-                         Telec.showtimes= 10+Telec.showtimes;//每次增加 10分钟
-                         LEDDisplay_TimerTim();
-                    }
-					else{
-                         Telec.timerq=1; //第二次按定时按键，是减少
-                         Telec.showtimes= Telec.showtimes -10;//每次减少 10分钟
-                         if(Telec.showtimes <=0){
-							 if(Telec.getTimerHour>=1){ //jia
-								 Telec.getTimerHour =Telec.getTimerHour -1;
-								 Telec.showtimes=60;
-							 }
-							 else{
-								 Telec.showtimes=0;
-							 }
-
-						 }
-                         LEDDisplay_TimerTim();
-                    }
-
-				break;
+					Telec.timerq=1;
+                    Telec.showtimes= 10+Telec.showtimes;//每次增加 10分钟
+                    LEDDisplay_TimerTim();
+                break;
 
 				case 0x2: //向上调节
 				     if(subutton==0)subutton=1;
@@ -212,17 +193,17 @@ void KeyServer()
 }
 /*************************************************************************
  	*
-	*Function Name: USART_SendData(uint8 data)
+	*Function Name: USART_SendData(uint8_t data)
 	*Function : GPIO口模拟串口，波特率 =9600bps ，间隔发送时间= 1s/9600=104us
 	*Input Ref: data ，需要发送的数据32bit
 	*Output Ref:No
 	*
 **************************************************************************/
-void USART_SendData(uint8 arr[])
+void USART_SendData(uint8_t *arr)
 {
-	static uint8 interflag;
-	uint8 i,pro=0;
-    uint8 bcc_data;
+	static uint8_t interflag;
+	uint8_t i,pro=0;
+    uint8_t bcc_data;
     //CRC_data = CRC8(arr, 3);
 	bcc_data=BCC(arr,3);
 	arr[3]=bcc_data;
@@ -265,18 +246,18 @@ void USART_SendData(uint8 arr[])
 }
 /*************************************************************************
  	*
-	*Function Name: uint8 BCC(uint8 *sbyte,uint8 len); 
+	*Function Name: uint8_t BCC(uint8_t *sbyte,uint8_t width); 
     *Input Ref:be used to send data  
-			   len :数据的长度
+			   witdth :数据的字节数
 	*Return Ref: crc,send data 
 	*
 **************************************************************************/
 #if 0
-uint8 CRC8(uint8 arr[], uint8 num)
+uint8_t CRC8(uint8_t *ptr, uint8_t num)
 {
-   uint8 cacbit ; //bit mask;
-   uint8 crc = 0XFF;  //calculaed checksum
-   uint8 byteCtr ; //byte counter
+   uint8_t cacbit ; //bit mask;
+   uint8_t crc = 0XFF;  //calculaed checksum
+   uint8_t byteCtr ; //byte counter
    
    //calculate 8 bit checksum with given polynomial 
    for(byteCtr =0; byteCtr<num; byteCtr++)
@@ -296,11 +277,11 @@ uint8 CRC8(uint8 arr[], uint8 num)
     
 }
 #endif 
-uint8 BCC(uint8 *sbytes,uint8 wid)
+uint8_t BCC(uint8_t *sbytes,uint8_t width)
 {
-     uint8 i;
-	 uint8 tembyte = 0;
-    for (i = 0; i <wid; i++) {
+     uint8_t i;
+	 uint8_t tembyte = sbytes[0];
+    for (i = 1; i <width; i++) {
         tembyte ^= sbytes[i];
     }
     return tembyte;

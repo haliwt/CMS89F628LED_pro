@@ -2,9 +2,11 @@
 #define __TOUCHKEY_H__
 #include "LED.h"
 
-typedef unsigned char uint8;
-typedef unsigned int uint16;
+typedef unsigned char uint8_t;
+typedef unsigned int uint16_t;
 typedef int int16_t;
+typedef char int8_t;
+//typedef unsigned short uint16_t
 
 
 #define		PortMos		RB7				//定义RC0口 取名Pout
@@ -24,25 +26,25 @@ typedef int int16_t;
 //通讯参数
 struct _TELEC_
 {
-	uint8 get_8_microsecond ;
-	uint8 timerq :1;          //定时器通知信号
+	uint8_t get_8_microsecond ;
+	uint8_t timerq :1;          //定时器通知信号
     int16_t  showtimes;         //显示时间，数据，按键输入
-    uint8 getTimerHour;        //定时器时间小时
-	uint8 setWind_levels ; //设置风扇的级别，共5级
-	uint8 runstart:1;
-	uint8 sterilize : 1;  //杀菌
-	uint8 power_state :1; //开启电源
-	uint8 setTimerValue ;     //设置定时时间的值
+    uint8_t getTimerHour;        //定时器时间小时
+	uint8_t setWind_levels ; //设置风扇的级别，共5级
+	uint8_t runstart:1;
+	uint8_t sterilize : 1;  //杀菌
+	uint8_t power_state :1; //开启电源
+	uint8_t setTimerValue ;     //设置定时时间的值
 	
 }Telec;
 
-void Delay_1us(uint16 ms);
+void Delay_1us(uint16_t ms);
 void Init_System(void);
 void Refurbish_Sfr(void);
 void KeyServer(void);
-void USART_SendData(uint8 data[]);//模拟串口函数
-//uint8 CRC8(uint8 arr[], uint8 num) ;          //CRC校验
-uint8 BCC(uint8 *sbyte,uint8 len);      //BCC校验
+void USART_SendData(uint8_t *arr);//模拟串口函数
+//uint8_t CRC8(uint8_t arr[], uint8_t num) ;          //CRC校验
+uint8_t BCC(uint8_t *sbyte,uint8_t len);      //BCC校验
 
 //接口函数声明
 extern void CheckTouchKey(void);	//按键扫描主过程函数,建议在2.5ms~5ms内调用
